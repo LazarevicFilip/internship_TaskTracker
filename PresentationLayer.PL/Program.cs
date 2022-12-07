@@ -1,30 +1,34 @@
+using BusinessLogic.BAL.Auth;
+using BusinessLogic.BAL.Models;
+using DataAccess.DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using PresentationLayer.PL.Extemsions;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//Configuration for JWT bearer auth schema
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateIssuer = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateAudience = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    });
+var settings = new AppSettings();
+builder.Configuration.Bind("Jwt",settings);
+builder.Services.AddSingleton(settings);
+//add auth
+builder.Services.AddJwtAuthetification(builder.Configuration);
+//add jwt handler
+builder.Services.AddJwtManager(builder.Configuration);
+//add http context
+builder.Services.AddHttpContextAccessor();
+//Add dbContext
+builder.Services.AddTransient< TaskContext>();
+builder.Services.AddUser();
+
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -43,3 +47,15 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+
+
+//builder.Services.AddTransient(x =>
+//{
+//    var optiinsBuilder = new DbContextOptionsBuilder<TaskContext>();
+//    var connection = builder.Configuration["ConnectionString:DefaultConnection"];
+//    optiinsBuilder.UseSqlServer(connection);
+//    var options = optiinsBuilder.Options;
+//    return new TaskContext(options);
+//});

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.User
 {
-    internal interface IApplicationUser
+    public interface IApplicationUser
     {
         public string Identity { get; }
         public int Id { get; }

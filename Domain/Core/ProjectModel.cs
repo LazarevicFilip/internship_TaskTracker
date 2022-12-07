@@ -14,11 +14,11 @@ namespace DataAccess.DAL.Core
     }
     public class ProjectModel : BaseEntity
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
-        public DateTime CompletionDate { get; set; }  
+        public DateTime? CompletionDate { get; set; }  
         public ProjectStatus ProjectStatus { get; set; }
-        public int ProjectPriotiry { get; set; }
+        public int? ProjectPriotiry { get; set; }
         public List<TaskModel> Taks { get; set; } = new();
     }
 }

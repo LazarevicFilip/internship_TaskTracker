@@ -1,4 +1,5 @@
 ﻿using DataAccess.DAL.Core;
+using Domain.Core;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,15 +11,15 @@ namespace DataAccess.DAL
 {
     public class TaskContext : DbContext
     {
-        public TaskContext(DbContextOptions<TaskContext> options)
-            : base(options)
-        {
+        //public TaskContext(DbContextOptions<TaskContext> options)
+        //    : base(options)
+        //{
 
-        }
+        //}
+        public TaskContext() { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //DESKTOP-44C9J4P\SQLEXPRESS
-            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-44C9J4P\SQLEXPRESS;Initial Catalog=task_managment;Integrated Security=True");
+            optionsBuilder.UseSqlServer(@"Server=localhost;Initial Catalog=task_tracker;Integrated Security=True");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,6 +48,7 @@ namespace DataAccess.DAL
         }
         public DbSet<TaskModel> Tasks { get; set; }
         public DbSet<ProjectModel> Projects { get; set; }
-       
+        public DbSet<User> Users { get; set; }
+
     }
 }
