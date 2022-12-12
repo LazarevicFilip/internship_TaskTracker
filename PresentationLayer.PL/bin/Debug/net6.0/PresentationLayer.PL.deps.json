@@ -10,6 +10,7 @@
         "dependencies": {
           "BCrypt.Net-Next": "4.0.3",
           "BusinessLogic.BAL": "1.0.0",
+          "Domain": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "6.0.11",
           "Swashbuckle.AspNetCore": "6.2.3"
         },
@@ -502,6 +503,9 @@
         }
       },
       "Domain/1.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "6.0.11"
+        },
         "runtime": {
           "Domain.dll": {}
         }

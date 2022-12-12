@@ -1,7 +1,7 @@
 ﻿using BusinessLogic.BAL.Auth;
-using BusinessLogic.BAL.Models;
 using BusinessLogic.BAL.User;
 using DataAccess.DAL;
+using DataAccess.DAL.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;

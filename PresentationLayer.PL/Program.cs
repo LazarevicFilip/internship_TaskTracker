@@ -1,7 +1,11 @@
 using BusinessLogic.BAL.Auth;
-using BusinessLogic.BAL.Models;
+using BusinessLogic.BAL.Services;
 using DataAccess.DAL;
+using DataAccess.DAL.Core;
+using Domain.Interfaces;
+using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +30,8 @@ builder.Services.AddHttpContextAccessor();
 //Add dbContext
 builder.Services.AddTransient< TaskContext>();
 builder.Services.AddUser();
-
+ builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

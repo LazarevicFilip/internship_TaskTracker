@@ -1,6 +1,5 @@
 ﻿using BusinessLogic.BAL.Auth;
 using BusinessLogic.BAL.Dto;
-using BusinessLogic.BAL.Models;
 using BusinessLogic.BAL.User;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;

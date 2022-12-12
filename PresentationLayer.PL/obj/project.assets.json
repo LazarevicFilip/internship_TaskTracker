@@ -890,6 +890,9 @@
       "Domain/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "6.0.11"
+        },
         "compile": {
           "bin/placeholder/Domain.dll": {}
         },
@@ -2265,6 +2268,7 @@
     "net6.0": [
       "BCrypt.Net-Next >= 4.0.3",
       "BusinessLogic.BAL >= 1.0.0",
+      "Domain >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 6.0.11",
       "Swashbuckle.AspNetCore >= 6.2.3"
     ]
@@ -2298,6 +2302,9 @@
           "projectReferences": {
             "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\BusinessLogic.BAL\\BusinessLogic.BAL.csproj": {
               "projectPath": "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\BusinessLogic.BAL\\BusinessLogic.BAL.csproj"
+            },
+            "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\Domain\\Domain.csproj"
             }
           }
         }

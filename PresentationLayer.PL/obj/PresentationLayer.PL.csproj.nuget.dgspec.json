@@ -188,6 +188,12 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.11, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -234,6 +240,9 @@
             "projectReferences": {
               "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\BusinessLogic.BAL\\BusinessLogic.BAL.csproj": {
                 "projectPath": "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\BusinessLogic.BAL\\BusinessLogic.BAL.csproj"
+              },
+              "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\Laza\\source\\repos\\internship_TaskTracker\\Domain\\Domain.csproj"
               }
             }
           }

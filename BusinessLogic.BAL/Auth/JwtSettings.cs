@@ -10,8 +10,6 @@ namespace BusinessLogic.BAL.Auth
     {
         public string Issuer { get; set; } = string.Empty;
         public int Minutes { get; set; }
-
-
         public string Key { get; set; } = string.Empty;
 
     }
