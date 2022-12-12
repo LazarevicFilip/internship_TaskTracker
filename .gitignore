@@ -1,6 +1,8 @@
-bin
-obj
-.dll
-.exe
-.log
-.vsidx
+bin/
+obj/
+*.dll
+*.exe
+*.log
+*.vsidx
+*.vs
+*.sln
