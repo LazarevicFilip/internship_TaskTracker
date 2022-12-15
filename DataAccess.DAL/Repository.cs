@@ -78,10 +78,5 @@ namespace DataAccess.DAL
                 await Context.SaveChangesAsync();
             }
         }
-
-        public async Task UpdateAsync(T entity, bool saveChanges = true)
-        {
-          
-        }
     }
 }

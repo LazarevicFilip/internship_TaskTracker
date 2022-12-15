@@ -185,7 +185,7 @@ namespace DataAccess.DAL.Migrations
                     b.HasOne("DataAccess.DAL.Core.ProjectModel", "Project")
                         .WithMany("Taks")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Project");
