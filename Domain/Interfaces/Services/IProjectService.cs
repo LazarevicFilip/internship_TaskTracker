@@ -10,10 +10,10 @@ namespace Domain.Interfaces.Services
 {
     public interface IProjectService
     {
-        Task<IList<ProjectModel>> GetAll();
-        Task<ProjectModel> GetOne(int id);
-        Task Update(TaskDto task);
-        Task Insert(TaskDto task);
+        Task<IList<ProjectDto>> GetAll(SearchDto dto);
+        Task<ProjectDto> GetOne(int id);
+        Task Update(ProjectDto task);
+        Task Insert(ProjectDto task);
         Task Delete(int id);
     }
 }

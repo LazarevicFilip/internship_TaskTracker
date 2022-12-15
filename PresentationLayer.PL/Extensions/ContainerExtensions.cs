@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace PresentationLayer.PL.Extemsions
+namespace PresentationLayer.PL.Extensions
 {
     public static class ContainerExtensions
     {

@@ -14,6 +14,6 @@ namespace Domain.Dto
         public Status Status { get; set; }
         public string? Description { get; set; }
         public int? Priority { get; set; }
-        public int Project { get; set; }
+        public int ProjectId { get; set; }
     }
 }

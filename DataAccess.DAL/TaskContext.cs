@@ -24,6 +24,8 @@ namespace DataAccess.DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
+            modelBuilder.Entity<ProjectModel>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<TaskModel>().HasQueryFilter(x => x.IsActive);
             base.OnModelCreating(modelBuilder);
         }
         public override int SaveChanges()
@@ -35,11 +37,11 @@ namespace DataAccess.DAL
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            e.CreatedAt = DateTime.UtcNow;
+                            e.CreatedAt = DateTime.Now;
                             e.IsActive = true;
                             break;
                         case EntityState.Modified:
-                            e.UpdatedAt = DateTime.UtcNow;
+                            e.UpdatedAt = DateTime.Now;
                             break;
                     }
                 }

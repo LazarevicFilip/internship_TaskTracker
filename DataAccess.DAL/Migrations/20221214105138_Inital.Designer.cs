@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.DAL.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    [Migration("20221207170341_Initial")]
-    partial class Initial
+    [Migration("20221214105138_Inital")]
+    partial class Inital
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -187,7 +187,7 @@ namespace DataAccess.DAL.Migrations
                     b.HasOne("DataAccess.DAL.Core.ProjectModel", "Project")
                         .WithMany("Taks")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Project");

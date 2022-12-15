@@ -10,8 +10,8 @@ namespace Domain.Interfaces.Services
 {
     public interface ITaskService
     {
-        Task<IList<TaskModel>> GetAll();
-        Task<TaskModel> GetOne(int id);
+        Task<IList<TaskDto>> GetAll();
+        Task<TaskDto> GetOne(int id);
         Task Update(TaskDto task, int id);
         Task Insert(TaskDto task);
         Task Delete(int id);
