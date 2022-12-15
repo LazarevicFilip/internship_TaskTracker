@@ -16,7 +16,7 @@ namespace DataAccess.DAL.Configuration
             builder.Property(x => x.Name).IsRequired(true).HasMaxLength(60);
             builder.HasIndex(x => x.Name).IsUnique(true);
 
-            builder.HasMany(x => x.Taks)
+            builder.HasMany(x => x.Tasks)
                 .WithOne(x => x.Project)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);

@@ -12,8 +12,10 @@ namespace Domain.Interfaces.Services
     {
         Task<IList<ProjectDto>> GetAll(SearchDto dto);
         Task<ProjectDto> GetOne(int id);
-        Task Update(ProjectDto task);
+        Task Update(ProjectDto task,int id);
         Task Insert(ProjectDto task);
         Task Delete(int id);
+        Task AddTasksToProject(AddTasksDto tasks, int id);
+        Task RemoveTasksFromProject(AddTasksDto tasks, int id);
     }
 }

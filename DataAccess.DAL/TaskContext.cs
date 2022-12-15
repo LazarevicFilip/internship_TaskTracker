@@ -11,11 +11,11 @@ namespace DataAccess.DAL
 {
     public class TaskContext : DbContext
     {
-        //public TaskContext(DbContextOptions<TaskContext> options)
-        //    : base(options)
-        //{
+        public TaskContext(DbContextOptions<TaskContext> options)
+            : base(options)
+        {
 
-        //}
+        }
         public TaskContext() { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

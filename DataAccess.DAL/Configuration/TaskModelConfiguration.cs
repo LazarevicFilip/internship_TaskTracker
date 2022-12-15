@@ -19,7 +19,7 @@ namespace DataAccess.DAL.Configuration
             //builder.Property(x => x.Status).HasDefaultValue(0);
 
             builder.HasOne(x => x.Project)
-                .WithMany(x => x.Taks)
+                .WithMany(x => x.Tasks)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

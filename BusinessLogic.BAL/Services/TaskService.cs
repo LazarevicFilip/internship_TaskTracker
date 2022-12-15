@@ -1,5 +1,5 @@
 ﻿using BusinessLogic.BAL.Exceptions;
-using BusinessLogic.BAL.Validators;
+using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
 using Domain.Dto;
 using Domain.Interfaces;
@@ -38,7 +38,9 @@ namespace BusinessLogic.BAL.Services
                 if (task == null)
                     throw new EntityNotFoundException(nameof(TaskDto), id);
 
-                await taskRepo.DeleteAsync(task);
+                //await taskRepo.DeleteAsync(task);
+                task.IsActive= false;
+                task.DeletedAt = DateTime.UtcNow;
 
                 await _unitOfWork.CommitTransaction();
             }

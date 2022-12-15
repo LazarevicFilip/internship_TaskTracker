@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -31,9 +32,15 @@ namespace DataAccess.DAL.Extensions
         {
             return repository.Entities.Include(path);
         }
-        public static IQueryable<T> AsQueryable<T>(this IRepository<T> repository) where T : class 
+        public static IQueryable<T> AsQueryable<T>(this IRepository<T> repository) where T : class
         {
             return repository.Entities.AsQueryable();
-        } 
+        }
+        public static async Task<List<T>> ToListAsync<T>(this IRepository<T> repository)
+            where T : class
+        {
+            return await repository.ToListAsync();
+        }
+        
     }
 }

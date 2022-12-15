@@ -20,6 +20,6 @@ namespace DataAccess.DAL.Core
         public DateTime? CompletionDate { get; set; }  
         public ProjectStatus ProjectStatus { get; set; }
         public int? ProjectPriotiry { get; set; }
-        public List<TaskModel> Taks { get; set; } = new();
+        public List<TaskModel> Tasks { get; set; } = new();
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.BAL.Validators
+namespace BusinessLogic.BAL.Validators.ProjectsValidator
 {
     public class ProjectValidator : AbstractValidator<ProjectDto>
     {
@@ -17,8 +17,8 @@ namespace BusinessLogic.BAL.Validators
             _context = context;
             RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Name is required parameter")
-                .Length(2, 20).WithMessage("Name of the project must be between 2 and 20 characters.")
-                .Must(y => !_context.Projects.Any(z => z.Name == y)).WithMessage("There is already project with the same name.");
+                .Length(2, 20).WithMessage("Name of the project must be between 2 and 20 characters.");
+                
 
             RuleFor(x => x.ProjectStatus)
                  .IsInEnum().WithMessage("Available statuses of the projects are 0,1 and 2.");
@@ -30,7 +30,7 @@ namespace BusinessLogic.BAL.Validators
                 .NotEmpty().WithMessage("StartDate is required parameter.");
 
             RuleFor(x => x)
-                .Must(x => DateTime.Compare(x.StartDate,(DateTime)x.CompletionDate) < 0).WithMessage("CompletionDate can be larger than StartDate.")
+                .Must(x => DateTime.Compare(x.StartDate, (DateTime)x.CompletionDate) < 0).WithMessage("CompletionDate can be larger than StartDate.")
                 .When(p => p.CompletionDate != null);
         }
     }
