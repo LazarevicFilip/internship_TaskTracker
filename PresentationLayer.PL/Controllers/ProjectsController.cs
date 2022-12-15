@@ -14,6 +14,7 @@ namespace PresentationLayer.PL.Controllers
         {
             _service = service;
         }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(IEnumerable<ProjectDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -21,6 +22,16 @@ namespace PresentationLayer.PL.Controllers
         {
             return Ok(await _service.GetAll(dto));
         }
+
+        [HttpGet("{id}", Name = nameof(GetOneProject))]
+        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(ProjectDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetOneProject(int id)
+        {
+            return Ok(await _service.GetOne(id));
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProjectDto))]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -28,9 +39,20 @@ namespace PresentationLayer.PL.Controllers
         public async Task<IActionResult> Create([FromBody] ProjectDto dto)
         {
            await _service.Insert(dto);
-            return Ok();
-           // return CreatedAtAction("TODO", new { id = dto.Id, }, dto);
+           return CreatedAtAction(nameof(GetOneProject), new { id = dto.Id, }, dto);
         }
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Update([FromBody] ProjectDto dto, int id)
+        {
+            await _service.Update(dto, id);
+            return NoContent();
+
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -39,6 +61,18 @@ namespace PresentationLayer.PL.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _service.Delete(id);
+            return NoContent();
+        }
+        [HttpPost("{id}/tasks")]
+        public async Task<IActionResult> AddTasksToProject([FromBody] AddTasksDto tasks,int id)
+        {
+            await _service.AddTasksToProject(tasks,id);
+            return StatusCode(StatusCodes.Status201Created);
+        }
+        [HttpDelete("{id}/tasks")]
+        public async Task<IActionResult> RemoveTasksFromProject([FromBody] AddTasksDto tasks, int id)
+        {
+            await _service.RemoveTasksFromProject(tasks, id);
             return NoContent();
         }
 

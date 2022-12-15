@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.BAL.Validators
+namespace BusinessLogic.BAL.Validators.TaskValidators
 {
     public class TaskValidator : AbstractValidator<TaskDto>
     {
@@ -19,7 +19,7 @@ namespace BusinessLogic.BAL.Validators
             _context = context;
             RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Name is required parameter.")
-                .Length(2,20).WithMessage("Name of the task must be between 2 and 20 characters.");
+                .Length(2, 20).WithMessage("Name of the task must be between 2 and 20 characters.");
 
             RuleFor(x => x.Status)
                 .IsInEnum().WithMessage("Available statuses of the tasks are 0,1 and 2.");
@@ -28,7 +28,7 @@ namespace BusinessLogic.BAL.Validators
                 .MaximumLength(100).WithMessage("Description of the task can't be longer that 100 characters.");
 
             RuleFor(x => x.Priority)
-                .InclusiveBetween(0,3).WithMessage("Priority of the task must be number between 0 and 3.");
+                .InclusiveBetween(0, 3).WithMessage("Priority of the task must be number between 0 and 3.");
 
             RuleFor(x => x.ProjectId).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("ProjectId is required parameter.")

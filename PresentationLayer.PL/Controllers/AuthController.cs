@@ -53,13 +53,5 @@ namespace PresentationLayer.PL.Controllers
             _context.SaveChanges();
             return StatusCode(201);
         }
-        [HttpGet]
-        [Authorize]
-        public IActionResult Get()
-        {
-            var u = _user.Email;
-            return Ok(u);
-        }
-       
     }
 }

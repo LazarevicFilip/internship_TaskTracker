@@ -1,5 +1,8 @@
 ﻿using BusinessLogic.BAL.Auth;
 using BusinessLogic.BAL.User;
+using BusinessLogic.BAL.Validators;
+using BusinessLogic.BAL.Validators.ProjectsValidator;
+using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -62,6 +65,14 @@ namespace PresentationLayer.PL.Extensions
 
                 return user;
             });
+        }
+        public static void AddValidators(this IServiceCollection services)
+        {
+            services.AddScoped<UpdateTaskValidator>();
+            services.AddScoped<CreateTaskValidator>();
+            services.AddScoped<UpdateProjectValidator>();
+            services.AddScoped<CreateProjectValidator>();
+            services.AddScoped<AddTasksDtoValidator>();
         }
     }
 }
