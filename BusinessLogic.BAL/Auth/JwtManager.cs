@@ -16,17 +16,22 @@ namespace BusinessLogic.BAL.Auth
     public class JwtManager
     {
         private readonly TaskContext _context;
-        //private readonly AppSettings _settings;
         private readonly IConfiguration _settings;
         public JwtManager(TaskContext context, IConfiguration settings)
         {
             _context = context;
             _settings = settings;
         }
+        /// <summary>
+        /// Make and return token.
+        /// </summary>
+        /// <param name="dto">User credentials dto.</param>
+        /// <returns></returns>
         public string MakeToken(UserLoginDto dto)
         {
+            //Get User
             JwtUser actor = Login(dto);
-
+            //Write claims
             var claims = new List<Claim> 
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -35,11 +40,11 @@ namespace BusinessLogic.BAL.Auth
                 new Claim("UserId", actor.Id.ToString(), ClaimValueTypes.String,  _settings["Jwt:Issuer"]),
                 new Claim("Email", actor.Email),
             };
-
+            //Signing token
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings["Jwt:Key"]));
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
+            //Create token
             var now = DateTime.UtcNow;
             var token = new JwtSecurityToken(
                 issuer: _settings["Jwt:Issuer"],
@@ -51,11 +56,15 @@ namespace BusinessLogic.BAL.Auth
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
+        /// <summary>
+        /// Get User from Db. If there is user with provided credentials Jwt User is returned.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedAccessException"></exception>
         private JwtUser Login(UserLoginDto dto)
         {
             var user = _context.Users.FirstOrDefault(x => x.UserName == dto.UserName);
-
 
             if (user == null)
             {

@@ -27,6 +27,11 @@ namespace BusinessLogic.BAL.Services
             _logger = logger;
             _validatorUpdate = validatorUpdate;
         }
+        /// <summary>
+        /// Delete selected task by Id (soft delete)
+        /// </summary>
+        /// <param name="id">Id of a task</param>
+        /// <returns></returns>
         public async Task Delete(int id)
         {
             try
@@ -34,7 +39,9 @@ namespace BusinessLogic.BAL.Services
                 await _unitOfWork.BeginTransaction();
 
                 var taskRepo = _unitOfWork.Repository<TaskModel>();
+
                 var task = await taskRepo.FindAsync(id);
+
                 if (task == null)
                     throw new EntityNotFoundException(nameof(TaskDto), id);
 
@@ -47,13 +54,20 @@ namespace BusinessLogic.BAL.Services
             catch (Exception e)
             {
                 _logger.LogError(e, "Error occurred at {repo} Delete method", typeof(TaskService));
+
                 await _unitOfWork.RollbackTransaction();
+
                 throw;
             }
         }
+        /// <summary>
+        ///  Get all tasks.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IList<TaskDto>> GetAll()
         {
             var tasks = await _unitOfWork.Repository<TaskModel>().GetAllAsync();
+
             return tasks.Select(x => new TaskDto
             {
                 Id = x.Id,
@@ -64,12 +78,17 @@ namespace BusinessLogic.BAL.Services
                 ProjectId = x.ProjectId
             }).ToList();
         }
-
+        /// <summary>
+        /// Get specific task by Id.
+        /// </summary>
+        /// <param name="id">Id of a task</param>
+        /// <returns></returns>
         public async Task<TaskDto> GetOne(int id)
         {
             try
             {
                 var task = await _unitOfWork.Repository<TaskModel>().FindAsync(id);
+
                 if (task == null)
                 {
                     throw new EntityNotFoundException(nameof(TaskDto), id);
@@ -87,15 +106,19 @@ namespace BusinessLogic.BAL.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} GetOne method", typeof(TaskService));
+
                 throw;
             }
         }
-
+        /// <summary>
+        /// Create new task.
+        /// </summary>
+        /// <param name="task">New task.</param>
+        /// <returns></returns>
         public async Task Insert(TaskDto task)
         {
             try
             {
-                //validation
                 _validator.ValidateAndThrow(task);
 
                 await _unitOfWork.BeginTransaction();
@@ -108,26 +131,39 @@ namespace BusinessLogic.BAL.Services
                     Priority = task.Priority,
                     Project = await _unitOfWork.Repository<ProjectModel>().FindAsync(task.ProjectId)
                 };
+
                 await _unitOfWork.Repository<TaskModel>().InsertAsync(t, true);
+
                 await _unitOfWork.CommitTransaction();
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} Insert method", typeof(TaskService));
+
                 await _unitOfWork.RollbackTransaction();
+
                 throw;
             }
            
         }
+        /// <summary>
+        /// Updating a task. Put method (replacing existing task)
+        /// </summary>
+        /// <param name="task">New task</param>
+        /// <param name="id">Id of a task.</param>
+        /// <returns></returns>
         public async Task Update(TaskDto task,int id)
         {
             try
             {
                 task.Id = id;
+
                 _validatorUpdate.ValidateAndThrow(task);
+
                 await _unitOfWork.BeginTransaction();
                 
                 var row = await _unitOfWork.Repository<TaskModel>().FindAsync(task.Id);
+
                 if(row == null)
                 {
                     throw new EntityNotFoundException(nameof(TaskDto),id);
@@ -142,7 +178,9 @@ namespace BusinessLogic.BAL.Services
             catch (Exception ex)
             {
                _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(TaskService));
+
                 await _unitOfWork.RollbackTransaction();
+
                 throw;
             }
         }

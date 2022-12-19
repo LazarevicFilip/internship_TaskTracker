@@ -37,20 +37,6 @@ namespace DataAccess.DAL
                 await Context.SaveChangesAsync();
             }
         }
-
-        public async Task  DeleteRangeAsync(IEnumerable<T> entities, bool saveChanges = true)
-        {
-            var enumerable = entities as T[] ?? entities.ToArray();
-            if (enumerable.Any())
-            {
-                Entities.RemoveRange(enumerable);
-            }
-            if (saveChanges)
-            {
-                await Context.SaveChangesAsync();
-            }
-        }
-
         public virtual async Task<T> FindAsync(params object[] keyValues)
         {
             return await Entities.FindAsync(keyValues);
@@ -64,15 +50,6 @@ namespace DataAccess.DAL
         public async Task InsertAsync(T entity, bool saveChanges = true)
         {
             await Entities.AddAsync(entity);
-            if (saveChanges)
-            {
-                await Context.SaveChangesAsync();
-            }
-        }
-
-        public async Task InsertRangeAsync(IEnumerable<T> entities, bool saveChanges = true)
-        {
-           await Context.AddRangeAsync(entities);
             if (saveChanges)
             {
                 await Context.SaveChangesAsync();
