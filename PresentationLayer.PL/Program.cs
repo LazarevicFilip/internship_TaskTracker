@@ -28,6 +28,7 @@ builder.Services.AddDbContext<TaskContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
 });
+
 //builder.Services.AddScoped<TaskContext>();
 //add validators(Fluent Validation package)
 builder.Services.AddValidators();

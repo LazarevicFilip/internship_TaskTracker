@@ -24,9 +24,12 @@ namespace PresentationLayer.PL.Middleware
             {
                 //log exception
                 _logger.LogError(ex,"Error from global exception handler, Erorr type: {err}", ex.GetType());
+
                 httpContext.Response.ContentType = "application/json";
+
                 //set default values for response json
                 object response = null;
+
                 var statusCode = StatusCodes.Status500InternalServerError;
 
                 if (ex is ForbbidenActionException)
@@ -53,10 +56,10 @@ namespace PresentationLayer.PL.Middleware
                             errorProperty = x.PropertyName
                         })
                     };
-
                 }
                 // return reposne json obj
                 httpContext.Response.StatusCode = statusCode;
+
                 if (response != null)
                 {
                     await httpContext.Response.WriteAsJsonAsync(response);

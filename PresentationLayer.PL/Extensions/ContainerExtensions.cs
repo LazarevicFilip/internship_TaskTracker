@@ -39,7 +39,6 @@ namespace PresentationLayer.PL.Extensions
             service.AddTransient(x =>
             {
                 var context = x.GetService<TaskContext>();
-                var jwtSettings = x.GetService<AppSettings>();
                 return new JwtManager(context!, settings);
             });
         }
@@ -66,6 +65,7 @@ namespace PresentationLayer.PL.Extensions
                 return user;
             });
         }
+        //Add validators (Fluent Validation Library)
         public static void AddValidators(this IServiceCollection services)
         {
             services.AddScoped<UpdateTaskValidator>();
