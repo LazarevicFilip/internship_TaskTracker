@@ -17,9 +17,7 @@
 - With this token has the possibility to access protected routes.
 - For list of all endpoints, see Swagger file.
 ### Third-party frameworks and packages
-- Microsoft.EntityFrameworkCore Version=6.0.11 + (design,tools,sqlServer)
 - BCrypt.Net-Next Version=4.0.3
-- Microsoft.AspNetCore.Authentication.JwtBearer Version=6.0.11
 - Swashbuckle.AspNetCore Version=6.2.3
 - FluentValidation Version=11.4.0
 
