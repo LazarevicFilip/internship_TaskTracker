@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.BAL.Exceptions;
+using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
 using Domain.Dto;
@@ -17,15 +18,20 @@ namespace BusinessLogic.BAL.Services
     public class TaskService : ITaskService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<TaskService> _logger;
+        private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
-        public TaskService(IUnitOfWork unitOfWork, CreateTaskValidator validator, ILogger<TaskService> logger, UpdateTaskValidator validatorUpdate)
+        public TaskService(IUnitOfWork unitOfWork, CreateTaskValidator validator, ILoggingService logger, UpdateTaskValidator validatorUpdate)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
             _validatorUpdate = validatorUpdate;
+        }
+        public TaskService(IUnitOfWork unitOfWork, ILoggingService logger)
+        {
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
         /// <summary>
         /// Delete selected task by Id (soft delete)
@@ -45,15 +51,17 @@ namespace BusinessLogic.BAL.Services
                 if (task == null)
                     throw new EntityNotFoundException(nameof(TaskDto), id);
 
-                //await taskRepo.DeleteAsync(task);
+                //Soft delte
                 task.IsActive= false;
                 task.DeletedAt = DateTime.UtcNow;
 
+                _logger.LogInforamtion("Deleted a task with Id: {id} from Delete method {repo}", task.Id, typeof(TaskService));
+
                 await _unitOfWork.CommitTransaction();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError(e, "Error occurred at {repo} Delete method", typeof(TaskService));
+                _logger.LogError(ex, "Error occurred at {repo} Delete method", typeof(TaskService));
 
                 await _unitOfWork.RollbackTransaction();
 
@@ -67,6 +75,8 @@ namespace BusinessLogic.BAL.Services
         public async Task<IList<TaskDto>> GetAll()
         {
             var tasks = await _unitOfWork.Repository<TaskModel>().GetAllAsync();
+
+            _logger.LogInforamtion("Retrived a tasks from GetAll method {repo}", typeof(TaskService));
 
             return tasks.Select(x => new TaskDto
             {
@@ -93,6 +103,9 @@ namespace BusinessLogic.BAL.Services
                 {
                     throw new EntityNotFoundException(nameof(TaskDto), id);
                 }
+
+                _logger.LogInforamtion("Retrived a task with Id: {id} from GetOne method {repo}",task.Id,typeof(TaskService));
+
                 return new TaskDto
                 {
                     Id = task.Id,
@@ -105,7 +118,7 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} GetOne method", typeof(TaskService));
+                _logger.LogError(ex,"Error occurred at {repo} GetOne method", typeof(TaskService));
 
                 throw;
             }
@@ -133,6 +146,8 @@ namespace BusinessLogic.BAL.Services
                 };
 
                 await _unitOfWork.Repository<TaskModel>().InsertAsync(t, true);
+
+                _logger.LogInforamtion("Created a tasks from Insert method {repo}", typeof(TaskService));
 
                 await _unitOfWork.CommitTransaction();
             }
@@ -173,6 +188,9 @@ namespace BusinessLogic.BAL.Services
                 row.Priority= task.Priority;
                 row.Description= task.Description;
                 row.UpdatedAt = DateTime.UtcNow;
+
+                _logger.LogInforamtion("Updated a task with an Id: {id} from Update method {repo}", task.Id, typeof(TaskService));
+
                 await _unitOfWork.CommitTransaction();
             }
             catch (Exception ex)

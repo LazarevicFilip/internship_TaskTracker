@@ -35,13 +35,13 @@ namespace BusinessLogic.BAL.Auth
             var claims = new List<Claim> 
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iss, _settings["Jwt:Issuer"]),
+                new Claim(JwtRegisteredClaimNames.Iss, _settings["Jwt:Issuer"]!),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64,  _settings["Jwt:Issuer"]),
                 new Claim("UserId", actor.Id.ToString(), ClaimValueTypes.String,  _settings["Jwt:Issuer"]),
                 new Claim("Email", actor.Email),
             };
             //Signing token
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings["Jwt:Key"]!));
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             //Create token
@@ -51,7 +51,7 @@ namespace BusinessLogic.BAL.Auth
                 audience: "Any",
                 claims: claims,
                 notBefore: now,
-                expires: now.AddMinutes(double.Parse(_settings["Jwt:Minutes"])),
+                expires: now.AddMinutes(double.Parse(_settings["Jwt:Minutes"]!)),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -70,7 +70,7 @@ namespace BusinessLogic.BAL.Auth
             {
                 throw new UnauthorizedAccessException();
             }
-
+            //Encrypt provided password and mathc with existing one form db. 
             var valid = BCrypt.Net.BCrypt.Verify(dto.Password, user.Password);
 
             if (!valid)
