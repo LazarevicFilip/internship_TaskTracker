@@ -13,25 +13,18 @@ namespace DataAccess.DAL
 {
     public class TaskContext : DbContext
     {
-        private readonly IConfiguration _settings;
-        public TaskContext(DbContextOptions<TaskContext> options, IConfiguration settings)
+        public TaskContext(DbContextOptions<TaskContext> options)
             : base(options)
         {
-            _settings = settings;
-        }
-        public TaskContext() { }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            //optionsBuilder.UseSqlServer(@"Server=localhost;Initial Catalog=task_tracker;Integrated Security=True");
-            optionsBuilder
-                
-                 .UseSqlServer(_settings.GetConnectionString("DefaultConnection"));
+
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
+            //gloabl query filter
             modelBuilder.Entity<ProjectModel>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<TaskModel>().HasQueryFilter(x => x.IsActive);
+
             base.OnModelCreating(modelBuilder);
         }
         public override int SaveChanges()
@@ -54,6 +47,7 @@ namespace DataAccess.DAL
             }
             return base.SaveChanges();
         }
+        //Application entities.
         public DbSet<TaskModel> Tasks { get; set; }
         public DbSet<ProjectModel> Projects { get; set; }
         public DbSet<User> Users { get; set; }

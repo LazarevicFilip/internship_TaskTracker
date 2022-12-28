@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.BAL.Exceptions;
+using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators;
 using BusinessLogic.BAL.Validators.ProjectsValidator;
 using DataAccess.DAL.Core;
@@ -22,12 +23,12 @@ namespace BusinessLogic.BAL.Services
     public class ProjectService : IProjectService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<ProjectService> _logger;
+        private readonly ILoggingService _logger;
         private readonly UpdateProjectValidator _updateProjectValidator;
         private readonly CreateProjectValidator _createProjectValidator;
         private readonly AddTasksDtoValidator _tasksProjectValidator;
 
-        public ProjectService(IUnitOfWork unitOfWork, ILogger<ProjectService> logger, AddTasksDtoValidator tasksProjectValidator, UpdateProjectValidator updateProjectValidator, CreateProjectValidator createProjectValidator)
+        public ProjectService(IUnitOfWork unitOfWork, ILoggingService logger, AddTasksDtoValidator tasksProjectValidator, UpdateProjectValidator updateProjectValidator, CreateProjectValidator createProjectValidator)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -60,13 +61,17 @@ namespace BusinessLogic.BAL.Services
                 {
                     throw new ConflictedActionException("Cannot delete a project because it contains tasks. Tasks:" + string.Join(",",project.Tasks.Select(x => x.Name)));
                 }
-                //await projectRepo.DeleteAsync(project);
+                //Soft delete
                 project.IsActive= false;
                 project.DeletedAt = DateTime.UtcNow;
+
+                _logger.LogInforamtion("Deleted a project with Id: {id} from Delete method {repo}", id, typeof(ProjectService));
+
                 await _unitOfWork.CommitTransaction();
+
             }catch(Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} GetOne method", typeof(ProjectService));
+                _logger.LogError(ex,"Error occurred at {repo} GetOne method", typeof(ProjectService));
 
                 await _unitOfWork.RollbackTransaction();
 
@@ -82,7 +87,9 @@ namespace BusinessLogic.BAL.Services
         public async Task<IList<ProjectDto>> GetAll(SearchDto dto)
         {
            var projects = await preformFiltering(dto);
-          
+
+            _logger.LogInforamtion("Retrived projects from GetAll method {repo}", typeof(ProjectService));
+
             return projects.Select(x => new ProjectDto
             {
                 Id = x.Id,
@@ -114,6 +121,8 @@ namespace BusinessLogic.BAL.Services
                     throw new EntityNotFoundException(nameof(ProjectDto), id);
                 }
 
+                _logger.LogInforamtion("Retrived a project with an Id: {id} from GetOne method {repo}",id, typeof(ProjectService));
+
                 return new ProjectDto
                 {
                     Id = project.Id,
@@ -131,7 +140,7 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} GetOne method", typeof(ProjectService));
+                _logger.LogError(ex,"Error occurred at {repo} GetOne method", typeof(ProjectService));
 
                 throw;
             }
@@ -159,11 +168,13 @@ namespace BusinessLogic.BAL.Services
                 };
                 await _unitOfWork.Repository<ProjectModel>().InsertAsync(project);
 
+                _logger.LogInforamtion("Create a project from Insert method {repo}", typeof(ProjectService));
+
                 await _unitOfWork.CommitTransaction();
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} GetOne method",typeof(ProjectService));
+                _logger.LogError(ex,"Error occurred at {repo} Insert method",typeof(ProjectService));
 
                 await _unitOfWork.RollbackTransaction();
 
@@ -198,6 +209,8 @@ namespace BusinessLogic.BAL.Services
                 row.CompletionDate = project.CompletionDate;
                 row.UpdatedAt = DateTime.UtcNow;
 
+                _logger.LogInforamtion("Update projects with an Id: {id} from Update method {repo}",id, typeof(ProjectService));
+
                 await _unitOfWork.CommitTransaction();
             }
             catch (Exception ex)
@@ -231,6 +244,8 @@ namespace BusinessLogic.BAL.Services
                 var taskModels = _unitOfWork.Repository<TaskModel>().Where(x => tasks.Tasks.Contains(x.Id));
 
                 project.Tasks.AddRange(taskModels);
+
+                _logger.LogInforamtion("Add tasks to project from AddTasksToProject method {repo}", typeof(ProjectService));
 
                 await _unitOfWork.CommitTransaction();
             }
@@ -269,12 +284,14 @@ namespace BusinessLogic.BAL.Services
                     x.IsActive = false;
                     x.DeletedAt = DateTime.UtcNow;
                 });
-                //project.Tasks.RemoveAll(x => taskModels.Contains(x));
+
+                _logger.LogInforamtion("Remove tasks from project in RemoveTasksFromProject method {repo}", typeof(ProjectService));
+
                 await _unitOfWork.CommitTransaction();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} AddTasksToProject method", typeof(ProjectService));
+                _logger.LogError(ex,"Error occurred at {repo} RemoveTasksFromProject method", typeof(ProjectService));
 
                 await _unitOfWork.RollbackTransaction();
 

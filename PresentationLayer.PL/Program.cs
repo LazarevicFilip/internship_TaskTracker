@@ -1,3 +1,4 @@
+using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Services;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;
@@ -14,31 +15,26 @@ using PresentationLayer.PL.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var settings = new AppSettings();
-builder.Configuration.Bind("Jwt",settings);
-builder.Services.AddSingleton(settings);
+
 //add auth
 builder.Services.AddJwtAuthetification(builder.Configuration);
+
 //add jwt handler
 builder.Services.AddJwtManager(builder.Configuration);
+
 //add http context
 builder.Services.AddHttpContextAccessor();
+
 //Add dbContext
 builder.Services.AddDbContext<TaskContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]!);
 });
-
-//builder.Services.AddScoped<TaskContext>();
-//add validators(Fluent Validation package)
+//add validators
 builder.Services.AddValidators();
 //add user
 builder.Services.AddUser();
-//add services/repositories
- builder.Services.AddScoped<ITaskService, TaskService>();
- builder.Services.AddScoped<IProjectService, ProjectService>();
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScopedServices();
 
 builder.Services.AddControllers();
 
@@ -54,7 +50,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+//Add custom middleware. Global exception hanlder (global try/cacth block)
 app.UseMiddleware<GlobalExceptionHandler>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
