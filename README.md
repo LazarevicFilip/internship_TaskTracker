@@ -1,7 +1,6 @@
 # internship_TaskTracker
 
-## Guideline
-
+## Guideline# 
 ### Description
 - Application is responsible for managing tasks and projects. It is built around two entities - Project and Tasks. The application support CRUD operations on entities and also operation for multiple deleting and inserting tasks for project.
 - This application represent N-Layer architecture style.(Domain, BL, DAL, PL).
