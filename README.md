@@ -24,5 +24,3 @@
 - BCrypt.Net-Next Version=4.0.3
 - Swashbuckle.AspNetCore Version=6.2.3
 - FluentValidation Version=11.4.0
-
- 
