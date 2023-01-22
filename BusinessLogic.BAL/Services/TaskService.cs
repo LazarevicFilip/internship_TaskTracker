@@ -2,6 +2,7 @@
 using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
+using DataAccess.DAL.Extensions;
 using Domain.Dto;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
@@ -21,7 +22,11 @@ namespace BusinessLogic.BAL.Services
         private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
-        public TaskService(IUnitOfWork unitOfWork, CreateTaskValidator validator, ILoggingService logger, UpdateTaskValidator validatorUpdate)
+        public TaskService(
+            IUnitOfWork unitOfWork,
+            CreateTaskValidator validator,
+            ILoggingService logger,
+            UpdateTaskValidator validatorUpdate)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
@@ -46,7 +51,7 @@ namespace BusinessLogic.BAL.Services
 
                 var taskRepo = _unitOfWork.Repository<TaskModel>();
 
-                var task = await taskRepo.FindAsync(id);
+                var task = await taskRepo.SingleOrDefaultAsync(x => x.Id == id);
 
                 if (task == null)
                     throw new EntityNotFoundException(nameof(TaskDto), id);
@@ -177,7 +182,7 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.BeginTransaction();
                 
-                var row = await _unitOfWork.Repository<TaskModel>().FindAsync(task.Id);
+                var row = await _unitOfWork.Repository<TaskModel>().SingleOrDefaultAsync(x => x.Id == task.Id);
 
                 if(row == null)
                 {

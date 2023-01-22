@@ -63,6 +63,15 @@ namespace PresentationLayer.PL.Controllers
             await _service.Delete(id);
             return NoContent();
         }
+        [HttpDelete("force/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> forceDelete(int id)
+        {
+            await _service.forceDelete(id);
+            return NoContent();
+        }
         [HttpPost("{id}/tasks")]
         public async Task<IActionResult> AddTasksToProject([FromBody] AddTasksDto tasks,int id)
         {
