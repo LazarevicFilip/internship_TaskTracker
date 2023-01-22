@@ -17,7 +17,9 @@ namespace BusinessLogic.BAL.Auth
     {
         private readonly TaskContext _context;
         private readonly IConfiguration _settings;
-        public JwtManager(TaskContext context, IConfiguration settings)
+        public JwtManager(
+            TaskContext context,
+            IConfiguration settings)
         {
             _context = context;
             _settings = settings;

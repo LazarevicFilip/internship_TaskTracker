@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "identityapp1": {
+      "restored": true,
+      "restoreTime": "2023-01-06T13:36:07.1940502Z"
+    },
+    "mssql1": {
+      "restored": true,
+      "restoreTime": "2023-01-06T13:36:03.0215102Z"
+    }
+  },
+  "parameters": {
+    "subscriptionId": {
+      "Name": "subscriptionId",
+      "Type": "subscription",
+      "Value": "a935eded-d50e-405e-9bfd-b18e7b54ad8e"
+    }
+  }
+}

@@ -19,7 +19,10 @@ namespace PresentationLayer.PL.Controllers
         private readonly TaskContext _context;
         private readonly IApplicationUser _user;
 
-        public AuthController(JwtManager manager, TaskContext context, IApplicationUser user)
+        public AuthController(
+            JwtManager manager,
+            TaskContext context,
+            IApplicationUser user)
         {
             _manager = manager;
             _context = context;

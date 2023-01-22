@@ -41,6 +41,15 @@ namespace DataAccess.DAL.Extensions
         {
             return await repository.ToListAsync();
         }
-        
+        public static async Task<T> SingleOrDefaultAsync<T>(this IRepository<T> repository, Expression<Func<T, bool>> predicate)
+            where T : class
+        {
+            return await repository.Entities.SingleOrDefaultAsync(predicate);
+        }
+        public static IQueryable<T> IgnoreQueryFilters<T>(this IRepository<T> repository) where T : class
+        {
+            return repository.Entities.IgnoreQueryFilters();
+        }
+
     }
 }

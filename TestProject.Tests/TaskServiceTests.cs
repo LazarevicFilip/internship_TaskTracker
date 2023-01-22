@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using BusinessLogic.BAL.Exceptions;
 using BusinessLogic.BAL.Logging;
 
-namespace TestProject.Tests
+namespace TaskTracker.UnitTests
 {
     public class TaskServiceTests
     {

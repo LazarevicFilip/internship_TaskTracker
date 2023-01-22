@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAGrR+eluuUEazjfDja3idIgAAAAACAAAAAAAQZgAAAAEAACAAAADZMaVzNq7qKmZhlHnQuXUc4WNOaykUiPj7+wziPdfiuwAAAAAOgAAAAAIAACAAAABxy4omwbZqS6vRqjm0TOBGulP/JKTfAvnTH0ZugOpk04AAAABnNQd8BaZJ7gjeRhQa6Erg4BgmBtHsCsLk4FS9PViQ+wBwlNu5kTBMerOYM67Fkv6oFIR3XYeXhiAhjXTpHP0dxgPD9UW/zzhnfowMgqX5ON2qerhN/EV+CbvPBT52kBVU7hF7r/qzldHjrElDi1dk0toOL1eQL11fzH8xSPQ6DkAAAABcif4RloWcLUHvD5/Rm2O7WqGQK8khfPBBZ5xJVcYqvbA/l55Hny8/7xjDm+DCLyEx6QXzpzjFz6nznsdIwE4N</EncryptedPassword>
+    <History>True|2023-01-06T19:08:28.5101760Z;False|2023-01-06T20:07:55.8654741+01:00;True|2023-01-06T20:02:30.2586684+01:00;True|2023-01-06T14:21:26.0474429+01:00;True|2023-01-06T14:19:09.7700590+01:00;True|2023-01-06T14:12:52.0402047+01:00;False|2023-01-06T13:57:52.1304843+01:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DefaultConnection">
+      <Value>Data Source=tcp:taskmanagmentdbsrv.database.windows.net,1433%3bInitial Catalog=TaskManagment_db%3bUser Id=TaskManagmentAdmin%40taskmanagmentdbsrv%3bPassword=Internship123</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+  <ItemGroup>
+    <EFMigrations Include="DataAccess.DAL.TaskContext">
+      <Value>Data Source=tcp:taskmanagmentdbsrv.database.windows.net,1433%3bInitial Catalog=TaskManagment_db%3bUser Id=TaskManagmentAdmin%40taskmanagmentdbsrv%3bPassword=Internship123</Value>
+    </EFMigrations>
+  </ItemGroup>
+</Project>

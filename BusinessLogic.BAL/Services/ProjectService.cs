@@ -28,7 +28,13 @@ namespace BusinessLogic.BAL.Services
         private readonly CreateProjectValidator _createProjectValidator;
         private readonly AddTasksDtoValidator _tasksProjectValidator;
 
-        public ProjectService(IUnitOfWork unitOfWork, ILoggingService logger, AddTasksDtoValidator tasksProjectValidator, UpdateProjectValidator updateProjectValidator, CreateProjectValidator createProjectValidator)
+        public ProjectService(
+            IUnitOfWork unitOfWork,
+            ILoggingService logger,
+            AddTasksDtoValidator tasksProjectValidator,
+            UpdateProjectValidator updateProjectValidator,
+            CreateProjectValidator createProjectValidator
+            )
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -51,7 +57,7 @@ namespace BusinessLogic.BAL.Services
 
                 var projectWithTasks = projectRepo.Include(x => x.Tasks);
 
-                var project = await projectWithTasks.FirstOrDefaultAsync(x => x.Id == id);
+                var project = await projectWithTasks.SingleOrDefaultAsync(x => x.Id == id);
 
                 if(project == null)
                 {
@@ -71,7 +77,41 @@ namespace BusinessLogic.BAL.Services
 
             }catch(Exception ex)
             {
-                _logger.LogError(ex,"Error occurred at {repo} GetOne method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} Delete method", typeof(ProjectService));
+
+                await _unitOfWork.RollbackTransaction();
+
+                throw;
+            }
+        }
+        /// <summary>
+        /// Delete selected project by Id (for cleanups in intefration test, deleting from db.)
+        /// </summary>
+        /// <param name="id">Id of a project</param>
+        /// <returns></returns>
+        public async Task forceDelete(int id)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransaction();
+
+                var project = await _unitOfWork.Repository<ProjectModel>().IgnoreQueryFilters<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
+
+                if (project == null)
+                {
+                    throw new EntityNotFoundException(nameof(ProjectModel), id);
+                }
+                
+               await _unitOfWork.Repository<ProjectModel>().DeleteAsync(project);
+                
+                _logger.LogInforamtion("Deleted a project with Id: {id} from forceDelete method {repo}", id, typeof(ProjectService));
+
+                await _unitOfWork.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred at {repo} forceDelete method", typeof(ProjectService));
 
                 await _unitOfWork.RollbackTransaction();
 
@@ -114,7 +154,7 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                var project = await _unitOfWork.Repository<ProjectModel>().FindAsync(id);
+                var project = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
 
                 if (project == null)
                 {
@@ -168,6 +208,8 @@ namespace BusinessLogic.BAL.Services
                 };
                 await _unitOfWork.Repository<ProjectModel>().InsertAsync(project);
 
+                dto.Id = project.Id;
+
                 _logger.LogInforamtion("Create a project from Insert method {repo}", typeof(ProjectService));
 
                 await _unitOfWork.CommitTransaction();
@@ -196,7 +238,7 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.BeginTransaction();
 
-                var row = await _unitOfWork.Repository<ProjectModel>().FindAsync(project.Id);
+                var row = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == project.Id);
 
                 if (row == null)
                 {
@@ -232,7 +274,7 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                var project = await _unitOfWork.Repository<ProjectModel>().FindAsync(id);
+                var project = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
                 if (project == null)
                 {
                     throw new EntityNotFoundException(nameof(ProjectDto), id);
@@ -268,7 +310,7 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                var project = await _unitOfWork.Repository<ProjectModel>().FindAsync(id);
+                var project = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
                 if (project == null)
                 {
                     throw new EntityNotFoundException(nameof(ProjectDto), id);

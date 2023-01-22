@@ -30,7 +30,7 @@ namespace BusinessLogic.BAL.Validators.ProjectsValidator
                 .NotEmpty().WithMessage("StartDate is required parameter.");
 
             RuleFor(x => x)
-                .Must(x => DateTime.Compare(x.StartDate, (DateTime)x.CompletionDate) < 0).WithMessage("CompletionDate can be larger than StartDate.")
+                .Must(x => DateTime.Compare(x.StartDate, (DateTime)x.CompletionDate) < 0).WithMessage("StartDate must be earlier than CompletionDate.")
                 .When(p => p.CompletionDate != null);
         }
     }
