@@ -16,6 +16,5 @@ namespace Domain.Interfaces
         Task InsertAsync(T entity, bool saveChanges = true);
         Task DeleteAsync(int id, bool saveChanges = true);
         Task DeleteAsync(T entity, bool saveChanges = true);
-       
     }
 }
