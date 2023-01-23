@@ -47,8 +47,6 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                await _unitOfWork.BeginTransaction();
-
                 var taskRepo = _unitOfWork.Repository<TaskModel>();
 
                 var task = await taskRepo.SingleOrDefaultAsync(x => x.Id == id);
@@ -57,18 +55,17 @@ namespace BusinessLogic.BAL.Services
                     throw new EntityNotFoundException(nameof(TaskDto), id);
 
                 //Soft delte
-                task.IsActive= false;
+                task.IsActive = false;
                 task.DeletedAt = DateTime.UtcNow;
+
+                await _unitOfWork.Save();
 
                 _logger.LogInforamtion("Deleted a task with Id: {id} from Delete method {repo}", task.Id, typeof(TaskService));
 
-                await _unitOfWork.CommitTransaction();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} Delete method", typeof(TaskService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -139,8 +136,6 @@ namespace BusinessLogic.BAL.Services
             {
                 _validator.ValidateAndThrow(task);
 
-                await _unitOfWork.BeginTransaction();
-
                 var t = new TaskModel()
                 {
                     Name = task.Name,
@@ -154,13 +149,10 @@ namespace BusinessLogic.BAL.Services
 
                 _logger.LogInforamtion("Created a tasks from Insert method {repo}", typeof(TaskService));
 
-                await _unitOfWork.CommitTransaction();
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} Insert method", typeof(TaskService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -180,8 +172,6 @@ namespace BusinessLogic.BAL.Services
 
                 _validatorUpdate.ValidateAndThrow(task);
 
-                await _unitOfWork.BeginTransaction();
-                
                 var row = await _unitOfWork.Repository<TaskModel>().SingleOrDefaultAsync(x => x.Id == task.Id);
 
                 if(row == null)
@@ -194,15 +184,14 @@ namespace BusinessLogic.BAL.Services
                 row.Description= task.Description;
                 row.UpdatedAt = DateTime.UtcNow;
 
+                await _unitOfWork.Save();
+
                 _logger.LogInforamtion("Updated a task with an Id: {id} from Update method {repo}", task.Id, typeof(TaskService));
 
-                await _unitOfWork.CommitTransaction();
             }
             catch (Exception ex)
             {
                _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(TaskService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }

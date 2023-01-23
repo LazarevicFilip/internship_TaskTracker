@@ -51,8 +51,6 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                await _unitOfWork.BeginTransaction();
-
                 var projectRepo = _unitOfWork.Repository<ProjectModel>();
 
                 var projectWithTasks = projectRepo.Include(x => x.Tasks);
@@ -68,18 +66,16 @@ namespace BusinessLogic.BAL.Services
                     throw new ConflictedActionException("Cannot delete a project because it contains tasks. Tasks:" + string.Join(",",project.Tasks.Select(x => x.Name)));
                 }
                 //Soft delete
-                project.IsActive= false;
+                project.IsActive = false;
                 project.DeletedAt = DateTime.UtcNow;
 
-                _logger.LogInforamtion("Deleted a project with Id: {id} from Delete method {repo}", id, typeof(ProjectService));
+                await _unitOfWork.Save();
 
-                await _unitOfWork.CommitTransaction();
+                _logger.LogInforamtion("Deleted a project with Id: {id} from Delete method {repo}", id, typeof(ProjectService));
 
             }catch(Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} Delete method", typeof(ProjectService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -93,8 +89,6 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                await _unitOfWork.BeginTransaction();
-
                 var project = await _unitOfWork.Repository<ProjectModel>().IgnoreQueryFilters<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
 
                 if (project == null)
@@ -106,14 +100,10 @@ namespace BusinessLogic.BAL.Services
                 
                 _logger.LogInforamtion("Deleted a project with Id: {id} from forceDelete method {repo}", id, typeof(ProjectService));
 
-                await _unitOfWork.CommitTransaction();
-
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} forceDelete method", typeof(ProjectService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -196,8 +186,6 @@ namespace BusinessLogic.BAL.Services
             {
                 _createProjectValidator.ValidateAndThrow(dto);
 
-                await _unitOfWork.BeginTransaction();
-
                 var project = new ProjectModel()
                 {
                     Name = dto.Name,
@@ -211,14 +199,10 @@ namespace BusinessLogic.BAL.Services
                 dto.Id = project.Id;
 
                 _logger.LogInforamtion("Create a project from Insert method {repo}", typeof(ProjectService));
-
-                await _unitOfWork.CommitTransaction();
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex,"Error occurred at {repo} Insert method",typeof(ProjectService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -234,9 +218,8 @@ namespace BusinessLogic.BAL.Services
             try
             {
                 project.Id = id;
-                _updateProjectValidator.ValidateAndThrow(project);
 
-                await _unitOfWork.BeginTransaction();
+                _updateProjectValidator.ValidateAndThrow(project);
 
                 var row = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == project.Id);
 
@@ -251,15 +234,13 @@ namespace BusinessLogic.BAL.Services
                 row.CompletionDate = project.CompletionDate;
                 row.UpdatedAt = DateTime.UtcNow;
 
-                _logger.LogInforamtion("Update projects with an Id: {id} from Update method {repo}",id, typeof(ProjectService));
+                await _unitOfWork.Save();
 
-                await _unitOfWork.CommitTransaction();
+                _logger.LogInforamtion("Update projects with an Id: {id} from Update method {repo}",id, typeof(ProjectService));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(TaskService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -281,21 +262,17 @@ namespace BusinessLogic.BAL.Services
                 }
                 _tasksProjectValidator.ValidateAndThrow(tasks);
 
-                await _unitOfWork.BeginTransaction();
-
                 var taskModels = _unitOfWork.Repository<TaskModel>().Where(x => tasks.Tasks.Contains(x.Id));
 
                 project.Tasks.AddRange(taskModels);
 
-                _logger.LogInforamtion("Add tasks to project from AddTasksToProject method {repo}", typeof(ProjectService));
+                await _unitOfWork.Save();
 
-                await _unitOfWork.CommitTransaction();
+                _logger.LogInforamtion("Add tasks to project from AddTasksToProject method {repo}", typeof(ProjectService));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred at {repo} AddTasksToProject method", typeof(ProjectService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }
@@ -317,8 +294,6 @@ namespace BusinessLogic.BAL.Services
                 }
                 _tasksProjectValidator.ValidateAndThrow(tasks);
 
-                await _unitOfWork.BeginTransaction();
-
                 var taskModels = await _unitOfWork.Repository<TaskModel>().Where(x => tasks.Tasks.Contains(x.Id)).ToListAsync();
 
                 taskModels.ForEach(x =>
@@ -327,15 +302,13 @@ namespace BusinessLogic.BAL.Services
                     x.DeletedAt = DateTime.UtcNow;
                 });
 
-                _logger.LogInforamtion("Remove tasks from project in RemoveTasksFromProject method {repo}", typeof(ProjectService));
+                await _unitOfWork.Save();
 
-                await _unitOfWork.CommitTransaction();
+                _logger.LogInforamtion("Remove tasks from project in RemoveTasksFromProject method {repo}", typeof(ProjectService));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,"Error occurred at {repo} RemoveTasksFromProject method", typeof(ProjectService));
-
-                await _unitOfWork.RollbackTransaction();
 
                 throw;
             }

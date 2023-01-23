@@ -83,7 +83,7 @@ namespace DataAccess.DAL
             _transaction = null;
         }
 
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public async Task<int> Save(CancellationToken cancellationToken = default)
         {
             return await DbContext.SaveChangesAsync(cancellationToken);
         }
