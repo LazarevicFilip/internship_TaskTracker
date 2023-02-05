@@ -12,8 +12,5 @@ namespace Domain.Interfaces
         DbContext DbContext { get; }
         IRepository<T> Repository<T>() where T : class;
         Task<int> Save(CancellationToken cancellationToken = default);
-        Task BeginTransaction();
-        Task CommitTransaction();
-        Task RollbackTransaction();
     }
 }

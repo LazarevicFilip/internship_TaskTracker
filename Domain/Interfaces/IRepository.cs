@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,5 +17,6 @@ namespace Domain.Interfaces
         Task InsertAsync(T entity, bool saveChanges = true);
         Task DeleteAsync(int id, bool saveChanges = true);
         Task DeleteAsync(T entity, bool saveChanges = true);
+        Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate);
     }
 }

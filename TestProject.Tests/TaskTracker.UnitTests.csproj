@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessLogic.BAL\BusinessLogic.BAL.csproj" />
+    <ProjectReference Include="..\PresentationLayer.PL\PresentationLayer.PL.csproj" />
   </ItemGroup>
 
 </Project>
