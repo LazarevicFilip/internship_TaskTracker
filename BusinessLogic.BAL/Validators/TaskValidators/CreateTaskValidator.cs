@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Validators.TaskValidators
 {
-    public class CreateTaskValidator : AbstractValidator<TaskDto>
+    public  class CreateTaskValidator : AbstractValidator<TaskDto>
     {
         private readonly TaskContext _context;
 

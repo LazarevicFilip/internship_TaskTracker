@@ -99,7 +99,7 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                var task = await _unitOfWork.Repository<TaskModel>().FindAsync(id);
+                var task = await _unitOfWork.Repository<TaskModel>().SingleOrDefaultAsync(x => x.Id == id);
 
                 if (task == null)
                 {

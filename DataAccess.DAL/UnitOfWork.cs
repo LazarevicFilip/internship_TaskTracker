@@ -21,28 +21,6 @@ namespace DataAccess.DAL
             DbContext = context;
             Repositories = new Dictionary<string, dynamic>();
         }
-        private async Task StartNewTransactionIfNeeded()
-        {
-            if (_transaction == null)
-            {
-                _transaction = _isolationLevel.HasValue ? await DbContext.Database.BeginTransactionAsync(_isolationLevel.GetValueOrDefault()) : await DbContext.Database.BeginTransactionAsync();
-
-            }
-        }
-        public async Task BeginTransaction()
-        {
-            await StartNewTransactionIfNeeded();
-        }
-
-        public async Task CommitTransaction()
-        {
-            await DbContext.SaveChangesAsync();
-            if (_transaction == null) return;
-            await _transaction.CommitAsync();
-            await _transaction.DisposeAsync();
-            _transaction = null;
-        }
-
         public void Dispose()
         {
             if (DbContext == null)
@@ -72,17 +50,6 @@ namespace DataAccess.DAL
                 return repository;
             }
         }
-
-        public async Task RollbackTransaction()
-        {
-            if (_transaction == null) return;
-
-            await _transaction.RollbackAsync();
-
-            await _transaction.DisposeAsync();
-            _transaction = null;
-        }
-
         public async Task<int> Save(CancellationToken cancellationToken = default)
         {
             return await DbContext.SaveChangesAsync(cancellationToken);
