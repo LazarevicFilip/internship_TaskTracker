@@ -1,9 +1,6 @@
 using BusinessLogic.BAL.Services;
-using BusinessLogic.BAL.Validators.ProjectsValidator;
-using BusinessLogic.BAL.Validators;
 using DataAccess.DAL.Core;
 using Domain.Interfaces;
-using Domain.Interfaces.Services;
 using Moq;
 using System.Reflection;
 using Domain.Dto;
