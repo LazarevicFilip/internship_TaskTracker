@@ -1,4 +1,5 @@
-﻿using Domain.Dto;
+﻿using DataAccess.DAL.Core;
+using Domain.Dto;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace TaskTracker.IntegrationTests
     public class ProjectControllerTests : IntegrationTest
     {
         [Fact]
-        public async Task GetAll_WithNoProjects_ReturnsEmptyArray()
+        public async Task GetAll_WithProjects_ReturnsUniqueArray()
         {
             // Arrange
             var endpoint = "/api/projects";
@@ -23,6 +24,7 @@ namespace TaskTracker.IntegrationTests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var x = await (response.Content.ReadAsAsync<List<ProjectDto>>());
+            //x.Should().BeEmpty();
             x.Should().AllBeOfType<ProjectDto>();
             x.Should().OnlyHaveUniqueItems();
             x.Should().NotBeNullOrEmpty();
@@ -37,7 +39,7 @@ namespace TaskTracker.IntegrationTests
                 StartDate = new DateTime(2022, 11, 21),
                 CompletionDate = new DateTime(2023, 12, 22),
                 ProjectStatus = (DataAccess.DAL.Core.ProjectStatus)1,
-                ProjectPriotiry = 1
+                ProjectPriority = Priority.Middle
 
             });
             var endpoint = $"/api/projects/{project.Id}";

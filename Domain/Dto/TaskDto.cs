@@ -13,7 +13,7 @@ namespace Domain.Dto
         public string Name { get; set; } = string.Empty;
         public Status Status { get; set; }
         public string? Description { get; set; }
-        public int? Priority { get; set; }
+        public Priority? Priority { get; set; }
         public int ProjectId { get; set; }
     }
 }

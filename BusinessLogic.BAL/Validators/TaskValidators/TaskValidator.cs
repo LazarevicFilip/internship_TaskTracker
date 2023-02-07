@@ -28,7 +28,7 @@ namespace BusinessLogic.BAL.Validators.TaskValidators
                 .MaximumLength(100).WithMessage("Description of the task can't be longer that 100 characters.");
 
             RuleFor(x => x.Priority)
-                .InclusiveBetween(0, 3).WithMessage("Priority of the task must be number between 0 and 3.");
+                .IsInEnum().WithMessage("Priority of the task must be number between 0 and 3.");
 
             RuleFor(x => x.ProjectId).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("ProjectId is required parameter.")

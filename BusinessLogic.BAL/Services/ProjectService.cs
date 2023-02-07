@@ -127,7 +127,7 @@ namespace BusinessLogic.BAL.Services
                 StartDate= x.StartDate,
                 CompletionDate= x.CompletionDate,
                 ProjectStatus= x.ProjectStatus,
-                ProjectPriotiry = x.ProjectPriotiry,
+                ProjectPriority = x.ProjectPriority,
                 Taks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == x.Id).Select(t => new TaskSummaryDto
                 {
                     Id = t.Id,
@@ -160,7 +160,7 @@ namespace BusinessLogic.BAL.Services
                     StartDate = project.StartDate,
                     CompletionDate = project.CompletionDate,
                     ProjectStatus = project.ProjectStatus,
-                    ProjectPriotiry = project.ProjectPriotiry,
+                    ProjectPriority = project.ProjectPriority,
                     Taks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == project.Id).Select(t => new TaskSummaryDto
                     {
                         Id = t.Id,
@@ -192,7 +192,7 @@ namespace BusinessLogic.BAL.Services
                     StartDate = dto.StartDate,
                     CompletionDate = dto.CompletionDate,
                     ProjectStatus = dto.ProjectStatus,
-                    ProjectPriotiry = dto.ProjectPriotiry,
+                    ProjectPriority = dto.ProjectPriority,
                 };
                 await _unitOfWork.Repository<ProjectModel>().InsertAsync(project);
 
@@ -229,7 +229,7 @@ namespace BusinessLogic.BAL.Services
                 }
                 row.Name = project.Name;
                 row.ProjectStatus = project.ProjectStatus;
-                row.ProjectPriotiry = project.ProjectPriotiry;
+                row.ProjectPriority = project.ProjectPriority;
                 row.StartDate = project.StartDate;
                 row.CompletionDate = project.CompletionDate;
                 row.UpdatedAt = DateTime.UtcNow;
@@ -336,11 +336,11 @@ namespace BusinessLogic.BAL.Services
             }
             if (dto.Status.HasValue)
             {
-                projects = projects.Where(x => (int)x.ProjectStatus == dto.Status.Value);
+                projects = projects.Where(x => (int)x.ProjectStatus == (int)dto.Status.Value);
             }
             if (dto.Priority.HasValue)
             {
-                projects = projects.Where(x => x.ProjectPriotiry == dto.Priority.Value);
+                projects = projects.Where(x => x.ProjectPriority == dto.Priority.Value);
             }
             if (dto.SortByNameAsc.HasValue)
             {

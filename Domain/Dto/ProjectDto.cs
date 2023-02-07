@@ -14,7 +14,7 @@ namespace Domain.Dto
         public DateTime StartDate { get; set; }
         public DateTime? CompletionDate { get; set; }
         public ProjectStatus ProjectStatus { get; set; }
-        public int? ProjectPriotiry { get; set; }
+        public Priority? ProjectPriority { get; set; }
         public List<TaskSummaryDto>? Taks { get; set; } = new();
     }
 }
