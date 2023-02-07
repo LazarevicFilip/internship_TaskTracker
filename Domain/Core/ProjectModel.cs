@@ -13,13 +13,20 @@ namespace DataAccess.DAL.Core
         Active,
         Completed
     }
+    public enum Priority
+    {
+        Low,
+        Middle,
+        High,
+        VeryHigh
+    }
     public class ProjectModel : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime? CompletionDate { get; set; }  
         public ProjectStatus ProjectStatus { get; set; }
-        public int? ProjectPriotiry { get; set; }
+        public Priority? ProjectPriority { get; set; }
         public List<TaskModel> Tasks { get; set; } = new();
     }
 }

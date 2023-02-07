@@ -17,6 +17,17 @@ namespace TaskTracker.IntegrationTests
             var appFactory = new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
+                    builder.ConfigureServices(services =>
+                    {
+                        //var descriptor = services.SingleOrDefault(d =>
+                        //     d.ServiceType == typeof(DbContextOptions<TaskContext>));
+
+                        //if (descriptor != null)
+                        //{
+                        //    services.Remove(descriptor);
+                        //}
+                        //services.AddDbContext<TaskContext>(options => options.UseInMemoryDatabase("testDb"));
+                    });
                 });
             _httpClient = appFactory.CreateClient();
         }
