@@ -20,6 +20,16 @@ namespace DataAccess.DAL.Configuration
                 .WithOne(x => x.Project)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasData(new ProjectModel
+            {
+                Name = "Project from seeder.",
+                CreatedAt= DateTime.UtcNow,
+                StartDate= DateTime.UtcNow,
+                CompletionDate = DateTime.UtcNow.AddMonths(4),
+                ProjectStatus = ProjectStatus.NotStarted,
+                ProjectPriority = Priority.VeryHigh
+            });
         }
     }
 }
