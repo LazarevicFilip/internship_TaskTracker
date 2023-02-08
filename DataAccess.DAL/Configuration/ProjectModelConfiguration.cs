@@ -23,6 +23,7 @@ namespace DataAccess.DAL.Configuration
 
             builder.HasData(new ProjectModel
             {
+                Id = 1,
                 Name = "Project from seeder.",
                 CreatedAt= DateTime.UtcNow,
                 StartDate= DateTime.UtcNow,
