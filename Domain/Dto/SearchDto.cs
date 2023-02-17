@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Dto
 {
-    public class SearchDto
+    public class SearchDto : PagingDto
     {
         public string? KeyWord { get; set; }
         //Results will be all projects that start after provided StartDate.
