@@ -1,3 +1,4 @@
+using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Services;
 using DataAccess.DAL;
@@ -32,10 +33,15 @@ builder.Services.AddDbContext<TaskContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]!);
 });
+//add in-memory cache
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICacheProvider, CacheProvider>();
 //add validators
 builder.Services.AddValidators();
+
 //add user
 builder.Services.AddUser();
+
 builder.Services.AddScopedServices();
 
 builder.Services.AddControllers()

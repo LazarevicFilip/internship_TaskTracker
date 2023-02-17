@@ -24,10 +24,10 @@ namespace DataAccess.DAL
             if (DbContext == null)
                 return;
 
-            if (DbContext.Database.GetDbConnection().State == ConnectionState.Open)
-            {
-                DbContext.Database.GetDbConnection().Close();
-            }
+            //if (DbContext.Database.GetDbConnection().State == ConnectionState.Open)
+            //{
+            //    DbContext.Database.GetDbConnection().Close();
+            //}
             DbContext.Dispose();
 
             DbContext = null;
