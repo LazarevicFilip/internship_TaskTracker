@@ -11,9 +11,6 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,8 +30,7 @@ namespace BusinessLogic.BAL.Services
             ILoggingService logger,
             AddTasksDtoValidator tasksProjectValidator,
             UpdateProjectValidator updateProjectValidator,
-            CreateProjectValidator createProjectValidator
-            )
+            CreateProjectValidator createProjectValidator)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -116,7 +112,7 @@ namespace BusinessLogic.BAL.Services
         /// <returns></returns>
         public async Task<IList<ProjectDto>> GetAll(SearchDto dto)
         {
-           var projects = await preformFiltering(dto);
+            var projects = await preformFiltering(dto);
 
             _logger.LogInforamtion("Retrived projects from GetAll method {repo}", typeof(ProjectService));
 

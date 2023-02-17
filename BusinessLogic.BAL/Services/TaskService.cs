@@ -1,4 +1,5 @@
-﻿using BusinessLogic.BAL.Exceptions;
+﻿using BusinessLogic.BAL.Cache;
+using BusinessLogic.BAL.Exceptions;
 using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
@@ -7,6 +8,7 @@ using Domain.Dto;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,16 +24,20 @@ namespace BusinessLogic.BAL.Services
         private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
+        private ICacheProvider _cacheProvider;
+
         public TaskService(
             IUnitOfWork unitOfWork,
             CreateTaskValidator validator,
             ILoggingService logger,
-            UpdateTaskValidator validatorUpdate)
+            UpdateTaskValidator validatorUpdate,
+            ICacheProvider cacheProvider)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
             _validatorUpdate = validatorUpdate;
+            _cacheProvider = cacheProvider;
         }
         public TaskService(IUnitOfWork unitOfWork, ILoggingService logger)
         {
@@ -76,19 +82,11 @@ namespace BusinessLogic.BAL.Services
         /// <returns></returns>
         public async Task<IList<TaskDto>> GetAll()
         {
-            var tasks = await _unitOfWork.Repository<TaskModel>().GetAllAsync();
+            var tasksList =await _cacheProvider.GetCachedResponseForTasks();
 
             _logger.LogInforamtion("Retrived a tasks from GetAll method {repo}", typeof(TaskService));
 
-            return tasks.Select(x => new TaskDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Priority = x.Priority,
-                Status = x.Status,
-                ProjectId = x.ProjectId
-            }).ToList();
+            return tasksList.ToList();
         }
         /// <summary>
         /// Get specific task by Id.
@@ -146,6 +144,8 @@ namespace BusinessLogic.BAL.Services
                 };
 
                 await _unitOfWork.Repository<TaskModel>().InsertAsync(t, true);
+
+                task.Id = t.Id;
 
                 _logger.LogInforamtion("Created a tasks from Insert method {repo}", typeof(TaskService));
 
