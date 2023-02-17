@@ -10,7 +10,7 @@ namespace Domain.Interfaces.Services
 {
     public interface IProjectService
     {
-        Task<IList<ProjectDto>> GetAll(SearchDto dto);
+        Task <PagedResponse<ProjectDto>> GetAll(SearchDto dto);
         Task<ProjectDto> GetOne(int id);
         Task Update(ProjectDto task,int id);
         Task Insert(ProjectDto task);
