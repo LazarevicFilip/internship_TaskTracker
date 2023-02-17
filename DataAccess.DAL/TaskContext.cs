@@ -1,7 +1,6 @@
 ﻿using DataAccess.DAL.Core;
 using Domain.Core;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -36,11 +35,11 @@ namespace DataAccess.DAL
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            e.CreatedAt = DateTime.Now;
+                            e.CreatedAt = DateTime.UtcNow;
                             e.IsActive = true;
                             break;
                         case EntityState.Modified:
-                            e.UpdatedAt = DateTime.Now;
+                            e.UpdatedAt = DateTime.UtcNow;
                             break;
                     }
                 }
