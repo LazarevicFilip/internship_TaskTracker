@@ -11,12 +11,11 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace BusinessLogic.BAL.Cache
 {
-    public class CacheProvider : ICacheProvider
+    public class CacheProvider<T> : ICacheProvider<T> where T : class
     {
         private static readonly SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _unitOfWork;
-        private const string ProjectsListCacheKeys = "TasksList";
 
         public CacheProvider(IMemoryCache cache, IUnitOfWork unitOfWork)
         {
@@ -24,20 +23,23 @@ namespace BusinessLogic.BAL.Cache
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<TaskDto>> GetCachedResponseForTasks()
+        public async Task<IEnumerable<T>> GetCachedResponseForTasks(string keyName, int page = 1, int perPage = 5)
         {
             try
             {
-                return await GetCachedResponse(ProjectsListCacheKeys, GetUsersSemaphore);
+                var cacheKeyWithQueryString = $"{keyName}_{page}_{perPage}";
+
+                return await GetCachedResponse(cacheKeyWithQueryString, GetUsersSemaphore);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }
         }
-        private async Task<IEnumerable<TaskDto>> GetCachedResponse(string cacheKey, SemaphoreSlim semaphore)
+       
+        private async Task<IEnumerable<T>> GetCachedResponse(string cacheKey, SemaphoreSlim semaphore)
         {
-            bool isAvailable = _cache.TryGetValue(cacheKey, out List<TaskDto> tasks);
+            bool isAvailable = _cache.TryGetValue(cacheKey, out List<T> tasks);
             if (isAvailable)
             {
                 return tasks;
@@ -45,18 +47,25 @@ namespace BusinessLogic.BAL.Cache
             try
             {
                 await semaphore.WaitAsync();
+
                 isAvailable = _cache.TryGetValue(cacheKey, out tasks);
+
                 if (isAvailable) return tasks;
-                var tasks2 = await _unitOfWork.Repository<TaskModel>().GetAllAsync();
-                tasks = tasks2.Select(x => new TaskDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Description = x.Description,
-                    Priority = x.Priority,
-                    Status = x.Status,
-                    ProjectId = x.ProjectId
-                }).ToList();
+
+                var type = typeof(T);
+
+                var tasks2 = await _unitOfWork.Repository<type>().GetAllAsync();
+
+                //tasks = tasks2.Select(x => new TaskDto
+                //{
+                //    Id = x.Id,
+                //    Name = x.Name,
+                //    Description = x.Description,
+                //    Priority = x.Priority,
+                //    Status = x.Status,
+                //    ProjectId = x.ProjectId
+                //}).ToList();
+
                 var cacheEntryOptions = new MemoryCacheEntryOptions
                 {
                     AbsoluteExpiration = DateTime.Now.AddMinutes(5),
@@ -65,7 +74,7 @@ namespace BusinessLogic.BAL.Cache
                 };
                 _cache.Set(cacheKey, tasks, cacheEntryOptions);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }

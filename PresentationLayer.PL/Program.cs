@@ -5,6 +5,7 @@ using DataAccess.DAL;
 using DataAccess.DAL.Core;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,12 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+//app.UseCors(builder => builder
+//    .WithOrigins("https://your-tenant-name.b2clogin.com")
+//    .AllowAnyHeader()
+//    .AllowAnyMethod()
+//);
+
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
@@ -73,7 +80,8 @@ app.UseMiddleware<GlobalExceptionHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers()
+    .RequireAuthorization(new AuthorizeAttribute());
 
 app.Run();
 

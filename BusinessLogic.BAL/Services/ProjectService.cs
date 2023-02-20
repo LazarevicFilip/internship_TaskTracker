@@ -117,10 +117,11 @@ namespace BusinessLogic.BAL.Services
 
             _logger.LogInforamtion("Retrived projects from GetAll method {repo}", typeof(ProjectService));
 
+            var projectsCount = await _unitOfWork.Repository<ProjectModel>().ToListAsync();
 
             return new PagedResponse<ProjectDto>
             {
-                Data = projects.Skip(((dto.Page.Value - 1) * dto.perPage.Value)).Take(dto.perPage.Value).Select(x => new ProjectDto
+                Data = projects.Select(x => new ProjectDto
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -136,11 +137,8 @@ namespace BusinessLogic.BAL.Services
                 }),
                 Page = dto.Page.Value,
                 PerPage = dto.perPage.Value,
-                TotalCount = projects.Count(),
+                TotalCount = projectsCount.Count
             };
-
-
-
         }
         /// <summary>
         /// Get specific project by Id.
@@ -362,7 +360,7 @@ namespace BusinessLogic.BAL.Services
                 projects = dto.SortByNameAsc.Value ? projects.OrderBy(x => x.Name) : projects.OrderByDescending(x => x.Name);
             }
             //point of materialization, we send constructed query to db
-            return await projects.ToListAsync();
+            return await projects.Skip(((dto.Page.Value - 1) * dto.perPage.Value)).Take(dto.perPage.Value).ToListAsync();
         }
     }
 }

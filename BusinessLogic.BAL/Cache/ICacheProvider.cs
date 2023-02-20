@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Cache
 {
-    public interface ICacheProvider
+    public interface ICacheProvider<T>
     {
-        public Task<IEnumerable<TaskDto>> GetCachedResponseForTasks();
+        public Task<IEnumerable<T>> GetCachedResponseForTasks(string keyName, int page, int perPage);
     }
 }
