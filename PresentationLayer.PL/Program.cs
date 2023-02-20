@@ -3,13 +3,7 @@ using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Services;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;
-using Domain.Interfaces;
-using Domain.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using PresentationLayer.PL.Extensions;
@@ -21,13 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 //add auth
 builder.Services.AddJwtAuthetification(builder.Configuration);
-
 //add jwt handler
-builder.Services.AddJwtManager(builder.Configuration);
+builder.Services.AddJwtOptions(builder.Configuration);
 
 //add http context
 builder.Services.AddHttpContextAccessor();
-
 //Add dbContext
 builder.Services.AddDbContext<TaskContext>(options =>
 {

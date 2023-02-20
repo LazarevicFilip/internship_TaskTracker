@@ -16,7 +16,7 @@ namespace DataAccess.DAL
     {
         public DbSet<T> Entities => Context.Set<T>();
 
-        public DbContext Context { get; private set; }
+        public DbContext Context { get; set; }
         public Repository(DbContext context)
         {
             Context = context;
