@@ -1,4 +1,5 @@
-﻿using BusinessLogic.BAL.Exceptions;
+﻿using BusinessLogic.BAL.Cache;
+using BusinessLogic.BAL.Exceptions;
 using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators;
 using BusinessLogic.BAL.Validators.ProjectsValidator;
@@ -25,19 +26,22 @@ namespace BusinessLogic.BAL.Services
         private readonly UpdateProjectValidator _updateProjectValidator;
         private readonly CreateProjectValidator _createProjectValidator;
         private readonly AddTasksDtoValidator _tasksProjectValidator;
+        private ICacheProvider<ProjectModel> _cacheProvider;
 
         public ProjectService(
             IUnitOfWork unitOfWork,
             ILoggingService logger,
             AddTasksDtoValidator tasksProjectValidator,
             UpdateProjectValidator updateProjectValidator,
-            CreateProjectValidator createProjectValidator)
+            CreateProjectValidator createProjectValidator,
+            ICacheProvider<ProjectModel> cacheProvider)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _tasksProjectValidator = tasksProjectValidator;
             _updateProjectValidator = updateProjectValidator;
             _createProjectValidator = createProjectValidator;
+            _cacheProvider = cacheProvider;
         }
         /// <summary>
         /// Delete selected project by Id (soft delete)
@@ -115,12 +119,18 @@ namespace BusinessLogic.BAL.Services
         {
             var projects = await preformFiltering(dto);
 
+            if (projects.Any())
+            {
+                projects = (IList<ProjectModel>)await _cacheProvider.GetCachedResponse(nameof(ProjectService), dto.Page.Value, dto.perPage.Value);
+            }
+
             _logger.LogInforamtion("Retrived projects from GetAll method {repo}", typeof(ProjectService));
 
+            var projectsCount = await _unitOfWork.Repository<ProjectModel>().GetAllAsync();
 
             return new PagedResponse<ProjectDto>
             {
-                Data = projects.Skip(((dto.Page.Value - 1) * dto.perPage.Value)).Take(dto.perPage.Value).Select(x => new ProjectDto
+                Data = projects.Select(x => new ProjectDto
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -136,11 +146,8 @@ namespace BusinessLogic.BAL.Services
                 }),
                 Page = dto.Page.Value,
                 PerPage = dto.perPage.Value,
-                TotalCount = projects.Count(),
+                TotalCount = projectsCount.Count
             };
-
-
-
         }
         /// <summary>
         /// Get specific project by Id.
@@ -362,7 +369,7 @@ namespace BusinessLogic.BAL.Services
                 projects = dto.SortByNameAsc.Value ? projects.OrderBy(x => x.Name) : projects.OrderByDescending(x => x.Name);
             }
             //point of materialization, we send constructed query to db
-            return await projects.ToListAsync();
+            return await projects.Skip(((dto.Page.Value - 1) * dto.perPage.Value)).Take(dto.perPage.Value).ToListAsync();
         }
     }
 }
