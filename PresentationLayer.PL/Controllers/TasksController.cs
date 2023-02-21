@@ -22,10 +22,10 @@ namespace PresentationLayer.PL.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TaskDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PagingDto dto)
         {
 
-            return Ok(await _service.GetAll());
+            return Ok(await _service.GetAll(dto));
 
         }
         [HttpGet("{id}",Name = nameof(GetOne))]

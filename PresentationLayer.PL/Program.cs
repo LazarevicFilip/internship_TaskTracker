@@ -36,7 +36,7 @@ builder.Services.AddDbContext<TaskContext>(options =>
 });
 //add in-memory cache
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<ICacheProvider, CacheProvider>();
+builder.Services.AddScoped(typeof(ICacheProvider<>), typeof(CacheProvider<>));
 //add validators
 builder.Services.AddValidators();
 
@@ -80,8 +80,8 @@ app.UseMiddleware<GlobalExceptionHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers()
-    .RequireAuthorization(new AuthorizeAttribute());
+app.MapControllers();
+    //.RequireAuthorization(new AuthorizeAttribute());
 
 app.Run();
 

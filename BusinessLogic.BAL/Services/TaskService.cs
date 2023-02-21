@@ -24,14 +24,14 @@ namespace BusinessLogic.BAL.Services
         private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
-        private ICacheProvider<TaskDto> _cacheProvider;
+        private ICacheProvider<TaskModel> _cacheProvider;
 
         public TaskService(
             IUnitOfWork unitOfWork,
             CreateTaskValidator validator,
             ILoggingService logger,
             UpdateTaskValidator validatorUpdate,
-            ICacheProvider<TaskDto> cacheProvider)
+            ICacheProvider<TaskModel> cacheProvider)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
@@ -207,9 +207,17 @@ namespace BusinessLogic.BAL.Services
                 dto.perPage = 5;
             }
 
-            var tasksList = await _cacheProvider.GetCachedResponseForTasks(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
+            var tasksList = await _cacheProvider.GetCachedResponse(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
 
-            return tasksList;
+            return tasksList.Select(x => new TaskDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Priority = x.Priority,
+                Status = x.Status,
+                ProjectId = x.ProjectId
+            });
         }
     }
 }

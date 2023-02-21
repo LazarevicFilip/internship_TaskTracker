@@ -29,25 +29,25 @@ namespace PresentationLayer.PL.Extensions
         /// <param name="settings"></param>
         public static void AddJwtAuthetification(this IServiceCollection service,IConfiguration settings)
         {
-            //var issuer = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}{"/v2.0"}";
-            //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
+            var issuer = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}{"/v2.0"}";
+            service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
 
-            //        options.Audience = settings["AAD:ClientId"];
-            //        options.Authority = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}";
-            //        options.RequireHttpsMetadata = false;
-            //        options.SaveToken = true;
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //    {
+                    //options.Audience = settings["AAD:ClientId"];
+                    //options.Authority = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}";
+                    //options.RequireHttpsMetadata = false;
+                    //options.SaveToken = true;
+                    //options.TokenValidationParameters = new TokenValidationParameters
+                    //{
 
-            //        ValidIssuer = issuer,
-            //        ValidateIssuer = true,
-            //        ValidateLifetime = true,
-            //        ClockSkew = TimeSpan.Zero
+                    //    ValidIssuer = issuer,
+                    //    ValidateIssuer = true,
+                    //    ValidateLifetime = true,
+                    //    ClockSkew = TimeSpan.Zero
 
-            //        };
-            //    });
+                    //};
+                });
             //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(settings.GetSection("AzureAdB2C"));
             //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

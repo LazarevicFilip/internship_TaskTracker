@@ -8,12 +8,13 @@ using DataAccess.DAL;
 using Domain.Dto;
 using Domain.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
+using DataAccess.DAL.Extensions;
 
 namespace BusinessLogic.BAL.Cache
 {
     public class CacheProvider<T> : ICacheProvider<T> where T : class
     {
-        private static readonly SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -23,48 +24,25 @@ namespace BusinessLogic.BAL.Cache
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<T>> GetCachedResponseForTasks(string keyName, int page = 1, int perPage = 5)
+        public async Task<IEnumerable<T>> GetCachedResponse(string cacheKey,int page = 1, int perPage = 5)
         {
-            try
-            {
-                var cacheKeyWithQueryString = $"{keyName}_{page}_{perPage}";
-
-                return await GetCachedResponse(cacheKeyWithQueryString, GetUsersSemaphore);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-       
-        private async Task<IEnumerable<T>> GetCachedResponse(string cacheKey, SemaphoreSlim semaphore)
-        {
-            bool isAvailable = _cache.TryGetValue(cacheKey, out List<T> tasks);
+            var cacheKeyWithQueryString = $"{cacheKey}_{page}_{perPage}";
+            bool isAvailable = _cache.TryGetValue(cacheKeyWithQueryString, out IList<T> items);
             if (isAvailable)
             {
-                return tasks;
+                return items;
             }
             try
             {
-                await semaphore.WaitAsync();
+                await _semaphore.WaitAsync();
 
-                isAvailable = _cache.TryGetValue(cacheKey, out tasks);
+                isAvailable = _cache.TryGetValue(cacheKeyWithQueryString, out items);
 
-                if (isAvailable) return tasks;
+                if (isAvailable) return items;
 
-                var type = typeof(T);
+                items = await _unitOfWork.Repository<T>().GetAllAsync();
 
-                var tasks2 = await _unitOfWork.Repository<type>().GetAllAsync();
-
-                //tasks = tasks2.Select(x => new TaskDto
-                //{
-                //    Id = x.Id,
-                //    Name = x.Name,
-                //    Description = x.Description,
-                //    Priority = x.Priority,
-                //    Status = x.Status,
-                //    ProjectId = x.ProjectId
-                //}).ToList();
+                items = items.Skip(((page - 1) * perPage)).Take(perPage).ToList();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions
                 {
@@ -72,7 +50,7 @@ namespace BusinessLogic.BAL.Cache
                     SlidingExpiration = TimeSpan.FromMinutes(2),
                     Size = 1024,
                 };
-                _cache.Set(cacheKey, tasks, cacheEntryOptions);
+                _cache.Set(cacheKeyWithQueryString, items, cacheEntryOptions);
             }
             catch (Exception)
             {
@@ -80,9 +58,9 @@ namespace BusinessLogic.BAL.Cache
             }
             finally
             {
-                semaphore.Release();
+                _semaphore.Release();
             }
-            return tasks;
+            return items;
         }
 
 
