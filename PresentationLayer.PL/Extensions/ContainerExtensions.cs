@@ -1,12 +1,10 @@
-﻿using BusinessLogic.BAL.Auth;
-using BusinessLogic.BAL.Logging;
+﻿using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Services;
 using BusinessLogic.BAL.User;
 using BusinessLogic.BAL.Validators;
 using BusinessLogic.BAL.Validators.ProjectsValidator;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL;
-using DataAccess.DAL.Core;
 using Domain.Interfaces.Services;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +15,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
+using BusinessLogic.BAL.Options;
+using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace PresentationLayer.PL.Extensions
 {
@@ -29,55 +30,26 @@ namespace PresentationLayer.PL.Extensions
         /// <param name="settings"></param>
         public static void AddJwtAuthetification(this IServiceCollection service,IConfiguration settings)
         {
-            var issuer = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}{"/v2.0"}";
             service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-
-                    //options.Audience = settings["AAD:ClientId"];
-                    //options.Authority = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}";
-                    //options.RequireHttpsMetadata = false;
-                    //options.SaveToken = true;
-                    //options.TokenValidationParameters = new TokenValidationParameters
-                    //{
-
-                    //    ValidIssuer = issuer,
-                    //    ValidateIssuer = true,
-                    //    ValidateLifetime = true,
-                    //    ClockSkew = TimeSpan.Zero
-
-                    //};
-                });
-            //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddMicrosoftIdentityWebApi(settings.GetSection("AzureAdB2C"));
-            //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //  .AddMicrosoftIdentityWebApi(options =>
-            //  {
-            //      settings.Bind("AzureAdB2C", options);
-            //      options.TokenValidationParameters.NameClaimType = "name";
-            //      options.Events = new JwtBearerEvents
-            //      {
-            //          OnTokenValidated = context =>
-            //          {
-            //              retur
-            //              // Perform custom token validation here
-            //          }
-            //      };
-            //  });
-
+            .AddMicrosoftIdentityWebApi(settings.GetSection("AzureAdB2C"))
+            .EnableTokenAcquisitionToCallDownstreamApi()
+            .AddInMemoryTokenCaches();
         }
         /// <summary>
         /// Add helper class that issue tokens to clients.
         /// </summary>
         /// <param name="service"></param>
         /// <param name="settings"></param>
-        public static void AddJwtManager(this IServiceCollection service, IConfiguration settings)
+        public static void AddJwtOptions(this IServiceCollection service, IConfiguration settings)
         {
-            service.AddTransient(x =>
-            {
-                var context = x.GetService<TaskContext>();
-                return new JwtManager(context!, settings);
-            });
+            var jwtSettings = new JwtSettings();
+            settings.Bind(nameof(jwtSettings), jwtSettings);
+            service.AddSingleton(jwtSettings);
+
+            var authConfig = new AuthConfig();
+            settings.Bind(nameof(authConfig), authConfig);
+            service.AddSingleton(authConfig);
+
         }
         /// <summary>
         /// Add user to application. If token is not present or invalid, AnonymousUser is returned.
@@ -89,7 +61,7 @@ namespace PresentationLayer.PL.Extensions
             {
                 var request = x.GetService<IHttpContextAccessor>();
 
-                var claims = request.HttpContext.User;
+                var claims = request?.HttpContext?.User;
 
                 if (claims == null || claims.FindFirst("UserId") == null)
                 {
@@ -115,6 +87,7 @@ namespace PresentationLayer.PL.Extensions
             services.AddScoped<UpdateProjectValidator>();
             services.AddScoped<CreateProjectValidator>();
             services.AddScoped<AddTasksDtoValidator>();
+            services.AddScoped<RegisterUserValidator>();
         }
         /// <summary>
         /// Add services and patterns
@@ -122,13 +95,19 @@ namespace PresentationLayer.PL.Extensions
         /// <param name="services"></param>
         public static void AddScopedServices(this IServiceCollection services)
         {
+            services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<User>();
+            services.AddScoped<DbContext,TaskContext>();
             //add services(repositories)
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddTransient<IIdentityService, IdentityService>();
             //Add patterns
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ILoggingService, ConsoleLogger>();
         }
     }
-    
+
+   
 }
