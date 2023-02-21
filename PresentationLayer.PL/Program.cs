@@ -7,6 +7,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using PresentationLayer.PL.Extensions;
@@ -54,18 +55,13 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-//app.UseCors(builder => builder
-//    .WithOrigins("https://your-tenant-name.b2clogin.com")
-//    .AllowAnyHeader()
-//    .AllowAnyMethod()
-//);
-
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 //Add custom middleware. Global exception hanlder (global try/cacth block)
@@ -75,7 +71,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-    //.RequireAuthorization(new AuthorizeAttribute());
 
 app.Run();
 

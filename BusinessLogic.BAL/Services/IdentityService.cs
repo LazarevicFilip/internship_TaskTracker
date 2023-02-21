@@ -14,7 +14,6 @@ namespace BusinessLogic.BAL.Services
     {
         private readonly IRepository<Domain.Core.User> _repository;
         private readonly RegisterUserValidator _registerValidator;
-       
         private readonly AuthConfig _config;
         public IdentityService(IRepository<Domain.Core.User> repository, RegisterUserValidator registerValidator, AuthConfig config)
         {
