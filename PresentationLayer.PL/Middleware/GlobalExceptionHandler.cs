@@ -33,7 +33,10 @@ namespace PresentationLayer.PL.Middleware
                 object response = null;
 
                 var statusCode = StatusCodes.Status500InternalServerError;
-
+                if(ex is UnauthorizedAccessException)
+                {
+                    statusCode = StatusCodes.Status401Unauthorized;
+                }
                 if (ex is ForbbidenActionException)
                 {
                     statusCode = StatusCodes.Status403Forbidden;
