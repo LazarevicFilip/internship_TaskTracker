@@ -3,6 +3,9 @@ using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Services;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;
+using Domain.Interfaces;
+using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
@@ -27,7 +30,7 @@ builder.Services.AddDbContext<TaskContext>(options =>
 });
 //add in-memory cache
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<ICacheProvider, CacheProvider>();
+builder.Services.AddScoped(typeof(ICacheProvider<>), typeof(CacheProvider<>));
 //add validators
 builder.Services.AddValidators();
 
@@ -51,6 +54,12 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+//app.UseCors(builder => builder
+//    .WithOrigins("https://your-tenant-name.b2clogin.com")
+//    .AllowAnyHeader()
+//    .AllowAnyMethod()
+//);
+
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
@@ -66,6 +75,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+    //.RequireAuthorization(new AuthorizeAttribute());
 
 app.Run();
 

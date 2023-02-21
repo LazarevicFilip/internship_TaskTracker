@@ -12,10 +12,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Domain.Core;
 using Microsoft.EntityFrameworkCore;
-using BusinessLogic.BAL.Options;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
+using BusinessLogic.BAL.Options;
 
 namespace PresentationLayer.PL.Extensions
 {
@@ -32,21 +32,38 @@ namespace PresentationLayer.PL.Extensions
             service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    
-                    options.Audience = settings["AAD:ClientId"];
-                    options.Authority = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}";
-                    options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    
-                    ValidIssuer = issuer,
-                    ValidateIssuer = true,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
 
-                    };
+                    //options.Audience = settings["AAD:ClientId"];
+                    //options.Authority = $"{settings["AAD:Instance"]}{settings["AAD:TenantId"]}";
+                    //options.RequireHttpsMetadata = false;
+                    //options.SaveToken = true;
+                    //options.TokenValidationParameters = new TokenValidationParameters
+                    //{
+
+                    //    ValidIssuer = issuer,
+                    //    ValidateIssuer = true,
+                    //    ValidateLifetime = true,
+                    //    ClockSkew = TimeSpan.Zero
+
+                    //};
                 });
+            //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddMicrosoftIdentityWebApi(settings.GetSection("AzureAdB2C"));
+            //service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //  .AddMicrosoftIdentityWebApi(options =>
+            //  {
+            //      settings.Bind("AzureAdB2C", options);
+            //      options.TokenValidationParameters.NameClaimType = "name";
+            //      options.Events = new JwtBearerEvents
+            //      {
+            //          OnTokenValidated = context =>
+            //          {
+            //              retur
+            //              // Perform custom token validation here
+            //          }
+            //      };
+            //  });
+
         }
         /// <summary>
         /// Add helper class that issue tokens to clients.

@@ -24,14 +24,14 @@ namespace BusinessLogic.BAL.Services
         private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
-        private ICacheProvider _cacheProvider;
+        private ICacheProvider<TaskModel> _cacheProvider;
 
         public TaskService(
             IUnitOfWork unitOfWork,
             CreateTaskValidator validator,
             ILoggingService logger,
             UpdateTaskValidator validatorUpdate,
-            ICacheProvider cacheProvider)
+            ICacheProvider<TaskModel> cacheProvider)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
@@ -80,13 +80,13 @@ namespace BusinessLogic.BAL.Services
         ///  Get all tasks.
         /// </summary>
         /// <returns></returns>
-        public async Task<IList<TaskDto>> GetAll()
+        public async Task<IList<TaskDto>> GetAll(PagingDto dto)
         {
-            var tasksList =await _cacheProvider.GetCachedResponseForTasks();
+            var tasks = await preformPaging(dto);
 
             _logger.LogInforamtion("Retrived a tasks from GetAll method {repo}", typeof(TaskService));
 
-            return tasksList.ToList();
+            return tasks.ToList();
         }
         /// <summary>
         /// Get specific task by Id.
@@ -195,6 +195,29 @@ namespace BusinessLogic.BAL.Services
 
                 throw;
             }
+        }
+        private async Task<IEnumerable<TaskDto>> preformPaging(PagingDto dto)
+        {
+            if (dto.Page == null || dto.Page < 1)
+            {
+                dto.Page = 1;
+            }
+            if (dto.perPage == null || dto.perPage < 5)
+            {
+                dto.perPage = 5;
+            }
+
+            var tasksList = await _cacheProvider.GetCachedResponse(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
+
+            return tasksList.Select(x => new TaskDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Priority = x.Priority,
+                Status = x.Status,
+                ProjectId = x.ProjectId
+            });
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Domain.Interfaces.Services
 {
     public interface ITaskService
     {
-        Task<IList<TaskDto>> GetAll();
+        Task<IList<TaskDto>> GetAll(PagingDto dto);
         Task<TaskDto> GetOne(int id);
         Task Update(TaskDto task, int id);
         Task Insert(TaskDto task);
