@@ -1,4 +1,5 @@
-﻿using BusinessLogic.BAL.Exceptions;
+﻿using Azure;
+using BusinessLogic.BAL.Exceptions;
 using FluentValidation;
 
 namespace PresentationLayer.PL.Middleware
@@ -49,6 +50,11 @@ namespace PresentationLayer.PL.Middleware
                 {
                     statusCode = StatusCodes.Status409Conflict;
                     response = new { Error = ex.Message };
+                }
+                if(ex is RequestFailedException)
+                {
+                    statusCode = StatusCodes.Status400BadRequest;
+                    response = new { Error = "Error while uploading file to cloud." };
                 }
                 if (ex is ValidationException e)
                 {

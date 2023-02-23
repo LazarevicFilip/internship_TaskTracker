@@ -23,9 +23,9 @@ namespace TaskTracker.IntegrationTests
             var response = await _httpClient.GetAsync(endpoint);
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var x = await (response.Content.ReadAsAsync<List<ProjectDto>>());
+            var x = await (response.Content.ReadAsAsync<List<ProjectResponseDto>>());
             //x.Should().BeEmpty();
-            x.Should().AllBeOfType<ProjectDto>();
+            x.Should().AllBeOfType<ProjectResponseDto>();
             x.Should().OnlyHaveUniqueItems();
             x.Should().NotBeNullOrEmpty();
         }
@@ -33,7 +33,7 @@ namespace TaskTracker.IntegrationTests
         public async Task GetOne_ReturnsProject_WhenProjectExistsInDatabase()
         {
             //Arrange
-            var project = await CreateProjectAsync(new ProjectDto
+            var project = await CreateProjectAsync(new ProjectResponseDto
             {
                 Name = "Project from tests",
                 StartDate = new DateTime(2022, 11, 21),
@@ -47,7 +47,7 @@ namespace TaskTracker.IntegrationTests
             var response = await _httpClient.GetAsync(endpoint);
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returned = await response.Content.ReadAsAsync<ProjectDto>();
+            var returned = await response.Content.ReadAsAsync<ProjectResponseDto>();
             returned.Id.Should().Be(project.Id);
             //Cleanup
             await DeleteProjectAsync(project.Id);
