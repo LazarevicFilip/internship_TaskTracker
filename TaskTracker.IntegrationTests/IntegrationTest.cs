@@ -35,11 +35,11 @@ namespace TaskTracker.IntegrationTests
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", await GetJwtAsync());
         }
-        protected async Task<ProjectDto> CreateProjectAsync(ProjectDto request)
+        protected async Task<ProjectResponseDto> CreateProjectAsync(ProjectResponseDto request)
         {
             var endpoint = "/api/projects";
             var response = await _httpClient.PostAsJsonAsync(endpoint, request);
-            return await response.Content.ReadAsAsync<ProjectDto>();
+            return await response.Content.ReadAsAsync<ProjectResponseDto>();
         }
         protected async Task<string> DeleteProjectAsync(int id)
         {

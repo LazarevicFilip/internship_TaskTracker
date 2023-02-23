@@ -1,12 +1,16 @@
+using Azure.Storage.Blobs;
 using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Logging;
+using BusinessLogic.BAL.Options;
 using BusinessLogic.BAL.Services;
+using BusinessLogic.BAL.Storage;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
@@ -32,8 +36,18 @@ builder.Services.AddDbContext<TaskContext>(options =>
 //add in-memory cache
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped(typeof(ICacheProvider<>), typeof(CacheProvider<>));
+
 //add validators
 builder.Services.AddValidators();
+
+//add support for azure storage
+builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureStorageOptions:AzureBlobStorageConnectionString"]));
+builder.Services.AddSingleton<IBlobService, BlobService>();
+//var azureConfig = new AzureStorageOptions();
+//builder.Configuration.Bind(nameof(azureConfig), azureConfig);
+//builder.Services.AddSingleton(azureConfig);
+var mySectionConfig = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
+builder.Services.AddSingleton(mySectionConfig);
 
 //add user
 builder.Services.AddUser();
@@ -61,7 +75,7 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
-
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
 //Add custom middleware. Global exception hanlder (global try/cacth block)

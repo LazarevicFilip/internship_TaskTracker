@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Dto
+namespace Domain.Dto.V1.Responses
 {
     public class PagedResponse<T>
     {
