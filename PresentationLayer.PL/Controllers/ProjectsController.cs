@@ -1,4 +1,5 @@
 ﻿using Domain.Dto;
+using Domain.Dto.V1.Request;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,7 @@ namespace PresentationLayer.PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class ProjectsController : ControllerBase
     {
         private readonly IProjectService _service;
@@ -18,7 +19,7 @@ namespace PresentationLayer.PL.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(IEnumerable<ProjectDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(IEnumerable<ProjectResponseDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAll([FromQuery] SearchDto dto)
         {
@@ -26,7 +27,7 @@ namespace PresentationLayer.PL.Controllers
         }
 
         [HttpGet("{id}", Name = nameof(GetOneProject))]
-        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(ProjectDto))]
+        [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(ProjectResponseDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOneProject(int id)
@@ -35,20 +36,20 @@ namespace PresentationLayer.PL.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProjectDto))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProjectResponseDto))]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Create([FromBody] ProjectDto dto)
+        public async Task<IActionResult> Create([FromForm] ProjectRequestDto dto)
         {
-           await _service.Insert(dto);
-           return CreatedAtAction(nameof(GetOneProject), new { id = dto.Id, }, dto);
+           var project = await _service.Insert(dto);
+           return CreatedAtAction(nameof(GetOneProject), new { id = project.Id, }, project);
         }
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromBody] ProjectDto dto, int id)
+        public async Task<IActionResult> Update([FromForm] UpdateProjectRequestDto dto, int id)
         {
             await _service.Update(dto, id);
             return NoContent();

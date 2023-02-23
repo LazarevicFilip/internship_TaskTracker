@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.DAL.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    [Migration("20230208113057_add seed data")]
-    partial class addseeddata
+    [Migration("20230222213747_Added FileURI column to project")]
+    partial class AddedFileURIcolumntoproject
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,6 +40,11 @@ namespace DataAccess.DAL.Migrations
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FileURI")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -74,13 +79,13 @@ namespace DataAccess.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            CompletionDate = new DateTime(2023, 6, 8, 11, 30, 57, 568, DateTimeKind.Utc).AddTicks(5606),
-                            CreatedAt = new DateTime(2023, 2, 8, 11, 30, 57, 568, DateTimeKind.Utc).AddTicks(5605),
+                            CompletionDate = new DateTime(2023, 6, 22, 21, 37, 46, 932, DateTimeKind.Utc).AddTicks(1156),
+                            CreatedAt = new DateTime(2023, 2, 22, 21, 37, 46, 932, DateTimeKind.Utc).AddTicks(1154),
                             IsActive = false,
                             Name = "Project from seeder.",
                             ProjectPriority = 3,
                             ProjectStatus = 0,
-                            StartDate = new DateTime(2023, 2, 8, 11, 30, 57, 568, DateTimeKind.Utc).AddTicks(5605)
+                            StartDate = new DateTime(2023, 2, 22, 21, 37, 46, 932, DateTimeKind.Utc).AddTicks(1155)
                         });
                 });
 

@@ -27,6 +27,7 @@ namespace DataAccess.DAL.Core
         public DateTime? CompletionDate { get; set; }  
         public ProjectStatus ProjectStatus { get; set; }
         public Priority? ProjectPriority { get; set; }
+        public string? FileURI { get; set; }
         public List<TaskModel> Tasks { get; set; } = new();
     }
 }

@@ -1,13 +1,14 @@
 ﻿using DataAccess.DAL.Core;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Dto
+namespace Domain.Dto.V1.Request
 {
-    public class ProjectDto
+    public class UpdateProjectRequestDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -15,6 +16,6 @@ namespace Domain.Dto
         public DateTime? CompletionDate { get; set; }
         public ProjectStatus ProjectStatus { get; set; }
         public Priority? ProjectPriority { get; set; }
-        public List<TaskSummaryDto>? Taks { get; set; } = new();
+        public IFormFile? File { get; set; }
     }
 }

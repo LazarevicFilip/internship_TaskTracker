@@ -1,5 +1,6 @@
 ﻿using DataAccess.DAL;
 using Domain.Dto;
+using Domain.Dto.V1.Request;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Validators.ProjectsValidator
 {
-    public class ProjectValidator : AbstractValidator<ProjectDto>
+    public class ProjectValidator : AbstractValidator<ProjectRequestDto>
     {
         private readonly TaskContext _context;
         public ProjectValidator(TaskContext context)
