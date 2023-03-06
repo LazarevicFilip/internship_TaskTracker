@@ -142,6 +142,7 @@ namespace BusinessLogic.BAL.Services
                     CompletionDate = x.CompletionDate,
                     ProjectStatus = x.ProjectStatus,
                     ProjectPriority = x.ProjectPriority,
+                    FileURI = x.FileURI,
                     Taks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == x.Id).Select(t => new TaskSummaryDto
                     {
                         Id = t.Id,

@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Logging;
@@ -20,12 +22,14 @@ using PresentationLayer.PL.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+var credentials = new DefaultAzureCredential(new DefaultAzureCredentialOptions
+{
+    VisualStudioTenantId = builder.Configuration["VisualStudioTenantId"]
+});
+var client = new SecretClient(new Uri(builder.Configuration["VaultUri"]), credentials);
+builder.Services.AddSingleton(client);
 //add auth
 builder.Services.AddJwtAuthetification(builder.Configuration);
-//add jwt handler
-builder.Services.AddJwtOptions(builder.Configuration);
-
 //add http context
 builder.Services.AddHttpContextAccessor();
 //Add dbContext
@@ -39,19 +43,18 @@ builder.Services.AddScoped(typeof(ICacheProvider<>), typeof(CacheProvider<>));
 
 //add validators
 builder.Services.AddValidators();
-
 //add support for azure storage
-builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureStorageOptions:AzureBlobStorageConnectionString"]));
+builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureBlobStorageConnectionString"]));
 builder.Services.AddSingleton<IBlobService, BlobService>();
-//var azureConfig = new AzureStorageOptions();
-//builder.Configuration.Bind(nameof(azureConfig), azureConfig);
-//builder.Services.AddSingleton(azureConfig);
-var mySectionConfig = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
-builder.Services.AddSingleton(mySectionConfig);
-
-//add user
-builder.Services.AddUser();
-
+//inject AzureStorageOptions object
+builder.Services.AddSingleton(x =>
+{
+    return new AzureStorageOptions
+    {
+        AzureBlobStorageConnectionString = builder.Configuration["AzureBlobStorageConnectionString"],
+        AzureBlobStorageContainer = builder.Configuration["AzureBlobStorageContainer"]
+    };
+});
 builder.Services.AddScopedServices();
 
 builder.Services.AddControllers()

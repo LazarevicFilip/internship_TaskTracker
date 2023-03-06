@@ -4,7 +4,7 @@
     <ActiveDebugProfile>PresentationLayer.PL</ActiveDebugProfile>
     <Controller_SelectedScaffolderID>ApiControllerEmptyScaffolder</Controller_SelectedScaffolderID>
     <Controller_SelectedScaffolderCategoryPath>root/Common/Api</Controller_SelectedScaffolderCategoryPath>
-    <NameOfLastUsedPublishProfile>C:\Users\Laza\source\repos\internship_TaskTracker\PresentationLayer.PL\Properties\PublishProfiles\TaskManagmentWebApi - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Users\Laza\source\repos\internship_TaskTracker\PresentationLayer.PL\Properties\PublishProfiles\taskTrackerAPI2 - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
