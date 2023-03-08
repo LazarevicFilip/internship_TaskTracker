@@ -16,6 +16,7 @@ namespace DataAccess.DAL.Configuration
             builder.Property(x => x.Name).IsRequired(true).HasMaxLength(50);
             builder.Property(x => x.Description).IsRequired(false).HasMaxLength(200);
             builder.Property(x => x.Priority).IsRequired(false).HasDefaultValue(Priority.Low);
+            builder.Property(x => x.RowVersion).IsRowVersion();
             //builder.Property(x => x.Status).HasDefaultValue(0);
 
             builder.HasOne(x => x.Project)

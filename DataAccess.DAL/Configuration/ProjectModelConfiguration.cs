@@ -19,6 +19,8 @@ namespace DataAccess.DAL.Configuration
             builder.Property(project => project.FileURI)
                 .HasDefaultValue(string.Empty);
 
+            builder.Property(x => x.RowVersion).IsRowVersion();
+
             builder.HasMany(x => x.Tasks)
                 .WithOne(x => x.Project)
                 .HasForeignKey(x => x.ProjectId)
@@ -34,7 +36,8 @@ namespace DataAccess.DAL.Configuration
                     StartDate = DateTime.UtcNow,
                     CompletionDate = DateTime.UtcNow.AddMonths(4),
                     ProjectStatus = ProjectStatus.NotStarted,
-                    ProjectPriority = Priority.VeryHigh
+                    ProjectPriority = Priority.VeryHigh,
+                    RowVersion = null
                 });
             }
         }

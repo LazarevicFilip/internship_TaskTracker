@@ -1,6 +1,7 @@
 ﻿using Domain.Dto;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,5 +30,6 @@ namespace DataAccess.DAL.Core
         public Priority? ProjectPriority { get; set; }
         public string? FileURI { get; set; }
         public List<TaskModel> Tasks { get; set; } = new();
+        public byte[] RowVersion { get; set; }
     }
 }
