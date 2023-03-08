@@ -8,6 +8,7 @@ using Domain.Dto;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
@@ -188,6 +189,24 @@ namespace BusinessLogic.BAL.Services
 
                 _logger.LogInforamtion("Updated a task with an Id: {id} from Update method {repo}", task.Id, typeof(TaskService));
 
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                foreach (var entry in ex.Entries)
+                {
+                    if (entry.Entity is TaskModel)
+                    {
+                        _logger.LogError(ex, "Concurrency violation occurred at {repo} Update method", typeof(TaskService));
+
+                        entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+
+                        throw;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Unable to handle concurrency conflicts for " + entry.Metadata.Name);
+                    }
+                }
             }
             catch (Exception ex)
             {

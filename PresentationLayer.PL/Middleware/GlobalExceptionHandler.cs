@@ -1,6 +1,7 @@
 ﻿using Azure;
 using BusinessLogic.BAL.Exceptions;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.PL.Middleware
 {
@@ -51,7 +52,17 @@ namespace PresentationLayer.PL.Middleware
                     statusCode = StatusCodes.Status409Conflict;
                     response = new { Error = ex.Message };
                 }
-                if(ex is RequestFailedException)
+                if (ex is DbUpdateConcurrencyException)
+                {
+                    statusCode = StatusCodes.Status409Conflict;
+                    response = new { Error = "Concurrency violation: The row has been updated or deleted by another transaction. Try again in a moment." };
+                }
+                if (ex is NotSupportedException)
+                {
+                    statusCode = StatusCodes.Status409Conflict;
+                    response = new { Error = ex.Message };
+                }
+                if (ex is RequestFailedException)
                 {
                     statusCode = StatusCodes.Status400BadRequest;
                     response = new { Error = "Error while uploading file to cloud." };

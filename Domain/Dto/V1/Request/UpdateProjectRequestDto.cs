@@ -1,5 +1,4 @@
 ﻿using DataAccess.DAL.Core;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +15,5 @@ namespace Domain.Dto.V1.Request
         public DateTime? CompletionDate { get; set; }
         public ProjectStatus ProjectStatus { get; set; }
         public Priority? ProjectPriority { get; set; }
-        public IFormFile? File { get; set; }
     }
 }

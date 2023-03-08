@@ -2,6 +2,7 @@
 using BusinessLogic.BAL.Exceptions;
 using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Storage;
+using BusinessLogic.BAL.Utility;
 using BusinessLogic.BAL.Validators;
 using BusinessLogic.BAL.Validators.ProjectsValidator;
 using DataAccess.DAL.Core;
@@ -13,6 +14,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Text;
@@ -257,11 +259,13 @@ namespace BusinessLogic.BAL.Services
         {
             try
             {
-                project.Id= id;
+                project.Id = id;
 
                 _updateProjectValidator.ValidateAndThrow(project);
 
-                var row = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
+                var context = _unitOfWork.Repository<ProjectModel>();
+
+                var row = await context.SingleOrDefaultAsync(x => x.Id == id);
 
                 if (row == null)
                 {
@@ -278,9 +282,27 @@ namespace BusinessLogic.BAL.Services
 
                 _logger.LogInforamtion("Update projects with an Id: {id} from Update method {repo}", id, typeof(ProjectService));
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                foreach (var entry in ex.Entries)
+                {
+                    if (entry.Entity is ProjectModel)
+                    {
+                        _logger.LogError(ex, "Concurrency violation occurred at {repo} Update method", typeof(ProjectService));
+
+                        entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+
+                        throw;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Unable to handle concurrency conflicts for " + entry.Metadata.Name);
+                    }
+                }
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(TaskService));
+                _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(ProjectService));
 
                 throw;
             }

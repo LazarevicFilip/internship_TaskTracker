@@ -131,7 +131,7 @@ namespace BusinessLogic.BAL.Services
             {
                 result = await app.AcquireTokenForClient(ResourceIds).ExecuteAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new UnauthorizedAccessException();
             }
