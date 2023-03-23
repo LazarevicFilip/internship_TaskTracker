@@ -4,6 +4,7 @@ using DataAccess.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.DAL.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    partial class TaskContextModelSnapshot : ModelSnapshot
+    [Migration("20230207174331_change column name")]
+    partial class changecolumnname
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,11 +41,6 @@ namespace DataAccess.DAL.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FileURI")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -60,12 +57,6 @@ namespace DataAccess.DAL.Migrations
                     b.Property<int>("ProjectStatus")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -78,19 +69,6 @@ namespace DataAccess.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("Projects");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CompletionDate = new DateTime(2023, 7, 8, 13, 32, 45, 111, DateTimeKind.Utc).AddTicks(8165),
-                            CreatedAt = new DateTime(2023, 3, 8, 13, 32, 45, 111, DateTimeKind.Utc).AddTicks(8164),
-                            IsActive = false,
-                            Name = "Project from seeder.",
-                            ProjectPriority = 3,
-                            ProjectStatus = 0,
-                            StartDate = new DateTime(2023, 3, 8, 13, 32, 45, 111, DateTimeKind.Utc).AddTicks(8165)
-                        });
                 });
 
             modelBuilder.Entity("DataAccess.DAL.Core.TaskModel", b =>
@@ -128,12 +106,6 @@ namespace DataAccess.DAL.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

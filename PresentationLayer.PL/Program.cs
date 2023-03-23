@@ -1,14 +1,19 @@
+using Azure.Storage.Blobs;
+using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Logging;
+using BusinessLogic.BAL.Options;
 using BusinessLogic.BAL.Services;
+using BusinessLogic.BAL.Storage;
 using DataAccess.DAL;
 using DataAccess.DAL.Core;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using PresentationLayer.PL.Extensions;
 using PresentationLayer.PL.Middleware;
 
@@ -18,29 +23,49 @@ var builder = WebApplication.CreateBuilder(args);
 
 //add auth
 builder.Services.AddJwtAuthetification(builder.Configuration);
-
 //add jwt handler
-builder.Services.AddJwtManager(builder.Configuration);
+builder.Services.AddJwtOptions(builder.Configuration);
 
 //add http context
 builder.Services.AddHttpContextAccessor();
-
 //Add dbContext
 builder.Services.AddDbContext<TaskContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]!);
 });
+//add in-memory cache
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped(typeof(ICacheProvider<>), typeof(CacheProvider<>));
+
 //add validators
 builder.Services.AddValidators();
+
+//add support for azure storage
+builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureStorageOptions:AzureBlobStorageConnectionString"]));
+builder.Services.AddSingleton<IBlobService, BlobService>();
+//var azureConfig = new AzureStorageOptions();
+//builder.Configuration.Bind(nameof(azureConfig), azureConfig);
+//builder.Services.AddSingleton(azureConfig);
+var mySectionConfig = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
+builder.Services.AddSingleton(mySectionConfig);
+
 //add user
 builder.Services.AddUser();
+
 builder.Services.AddScopedServices();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddNewtonsoftJson(options =>
+        {
+            options.SerializerSettings.Converters.Add(new StringEnumConverter());
+        }); 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaskTracker", Version = "v1" });
+}).AddSwaggerGenNewtonsoftSupport();
 
 var app = builder.Build();
 
@@ -50,6 +75,7 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
 //Add custom middleware. Global exception hanlder (global try/cacth block)
@@ -63,3 +89,7 @@ app.MapControllers();
 app.Run();
 
 public partial class Program { }
+
+
+
+

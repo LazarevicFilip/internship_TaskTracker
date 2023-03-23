@@ -4,6 +4,7 @@ using DataAccess.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.DAL.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    partial class TaskContextModelSnapshot : ModelSnapshot
+    [Migration("20230222213747_Added FileURI column to project")]
+    partial class AddedFileURIcolumntoproject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,12 +62,6 @@ namespace DataAccess.DAL.Migrations
                     b.Property<int>("ProjectStatus")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -83,13 +79,13 @@ namespace DataAccess.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            CompletionDate = new DateTime(2023, 7, 8, 13, 32, 45, 111, DateTimeKind.Utc).AddTicks(8165),
-                            CreatedAt = new DateTime(2023, 3, 8, 13, 32, 45, 111, DateTimeKind.Utc).AddTicks(8164),
+                            CompletionDate = new DateTime(2023, 6, 22, 21, 37, 46, 932, DateTimeKind.Utc).AddTicks(1156),
+                            CreatedAt = new DateTime(2023, 2, 22, 21, 37, 46, 932, DateTimeKind.Utc).AddTicks(1154),
                             IsActive = false,
                             Name = "Project from seeder.",
                             ProjectPriority = 3,
                             ProjectStatus = 0,
-                            StartDate = new DateTime(2023, 3, 8, 13, 32, 45, 111, DateTimeKind.Utc).AddTicks(8165)
+                            StartDate = new DateTime(2023, 2, 22, 21, 37, 46, 932, DateTimeKind.Utc).AddTicks(1155)
                         });
                 });
 
@@ -128,12 +124,6 @@ namespace DataAccess.DAL.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

@@ -5,16 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Dto
+namespace Domain.Dto.V1.Request
 {
-    public class ProjectDto
+    public class UpdateProjectRequestDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? CompletionDate { get; set; }
         public ProjectStatus ProjectStatus { get; set; }
-        public int? ProjectPriotiry { get; set; }
-        public List<TaskSummaryDto>? Taks { get; set; } = new();
+        public Priority? ProjectPriority { get; set; }
     }
 }

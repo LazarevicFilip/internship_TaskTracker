@@ -16,10 +16,30 @@ namespace DataAccess.DAL.Configuration
             builder.Property(x => x.Name).IsRequired(true).HasMaxLength(60);
             builder.HasIndex(x => x.Name).IsUnique(true);
 
+            builder.Property(project => project.FileURI)
+                .HasDefaultValue(string.Empty);
+
+            builder.Property(x => x.RowVersion).IsRowVersion();
+
             builder.HasMany(x => x.Tasks)
                 .WithOne(x => x.Project)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            if (builder.Metadata.FindAnnotation("HasData") == null)
+            {
+                builder.HasData(new ProjectModel
+                {
+                    Id = 1,
+                    Name = "Project from seeder.",
+                    CreatedAt = DateTime.UtcNow,
+                    StartDate = DateTime.UtcNow,
+                    CompletionDate = DateTime.UtcNow.AddMonths(4),
+                    ProjectStatus = ProjectStatus.NotStarted,
+                    ProjectPriority = Priority.VeryHigh,
+                    RowVersion = null
+                });
+            }
         }
     }
 }

@@ -17,6 +17,17 @@ namespace TaskTracker.IntegrationTests
             var appFactory = new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
+                    builder.ConfigureServices(services =>
+                    {
+                        //var descriptor = services.SingleOrDefault(d =>
+                        //     d.ServiceType == typeof(DbContextOptions<TaskContext>));
+
+                        //if (descriptor != null)
+                        //{
+                        //    services.Remove(descriptor);
+                        //}
+                        //services.AddDbContext<TaskContext>(options => options.UseInMemoryDatabase("testDb"));
+                    });
                 });
             _httpClient = appFactory.CreateClient();
         }
@@ -24,11 +35,11 @@ namespace TaskTracker.IntegrationTests
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", await GetJwtAsync());
         }
-        protected async Task<ProjectDto> CreateProjectAsync(ProjectDto request)
+        protected async Task<ProjectResponseDto> CreateProjectAsync(ProjectResponseDto request)
         {
             var endpoint = "/api/projects";
             var response = await _httpClient.PostAsJsonAsync(endpoint, request);
-            return await response.Content.ReadAsAsync<ProjectDto>();
+            return await response.Content.ReadAsAsync<ProjectResponseDto>();
         }
         protected async Task<string> DeleteProjectAsync(int id)
         {

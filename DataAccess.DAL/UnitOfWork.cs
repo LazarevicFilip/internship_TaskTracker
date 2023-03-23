@@ -14,8 +14,6 @@ namespace DataAccess.DAL
     {
         public DbContext DbContext { get; private set; }
         private Dictionary<string, object> Repositories { get; }
-        private IDbContextTransaction _transaction;
-        private IsolationLevel? _isolationLevel;
         public UnitOfWork(TaskContext context)
         {
             DbContext = context;
@@ -25,11 +23,11 @@ namespace DataAccess.DAL
         {
             if (DbContext == null)
                 return;
-         
-            if (DbContext.Database.GetDbConnection().State == ConnectionState.Open)
-            {
-                DbContext.Database.GetDbConnection().Close();
-            }
+
+            //if (DbContext.Database.GetDbConnection().State == ConnectionState.Open)
+            //{
+            //    DbContext.Database.GetDbConnection().Close();
+            //}
             DbContext.Dispose();
 
             DbContext = null;

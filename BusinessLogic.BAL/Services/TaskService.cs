@@ -1,4 +1,5 @@
-﻿using BusinessLogic.BAL.Exceptions;
+﻿using BusinessLogic.BAL.Cache;
+using BusinessLogic.BAL.Exceptions;
 using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
@@ -7,6 +8,8 @@ using Domain.Dto;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,16 +25,20 @@ namespace BusinessLogic.BAL.Services
         private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
+        private ICacheProvider<TaskModel> _cacheProvider;
+
         public TaskService(
             IUnitOfWork unitOfWork,
             CreateTaskValidator validator,
             ILoggingService logger,
-            UpdateTaskValidator validatorUpdate)
+            UpdateTaskValidator validatorUpdate,
+            ICacheProvider<TaskModel> cacheProvider)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
             _validatorUpdate = validatorUpdate;
+            _cacheProvider = cacheProvider;
         }
         public TaskService(IUnitOfWork unitOfWork, ILoggingService logger)
         {
@@ -74,21 +81,13 @@ namespace BusinessLogic.BAL.Services
         ///  Get all tasks.
         /// </summary>
         /// <returns></returns>
-        public async Task<IList<TaskDto>> GetAll()
+        public async Task<IList<TaskDto>> GetAll(PagingDto dto)
         {
-            var tasks = await _unitOfWork.Repository<TaskModel>().GetAllAsync();
+            var tasks = await preformPaging(dto);
 
             _logger.LogInforamtion("Retrived a tasks from GetAll method {repo}", typeof(TaskService));
 
-            return tasks.Select(x => new TaskDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Priority = x.Priority,
-                Status = x.Status,
-                ProjectId = x.ProjectId
-            }).ToList();
+            return tasks.ToList();
         }
         /// <summary>
         /// Get specific task by Id.
@@ -147,6 +146,8 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Repository<TaskModel>().InsertAsync(t, true);
 
+                task.Id = t.Id;
+
                 _logger.LogInforamtion("Created a tasks from Insert method {repo}", typeof(TaskService));
 
             }
@@ -189,12 +190,53 @@ namespace BusinessLogic.BAL.Services
                 _logger.LogInforamtion("Updated a task with an Id: {id} from Update method {repo}", task.Id, typeof(TaskService));
 
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                foreach (var entry in ex.Entries)
+                {
+                    if (entry.Entity is TaskModel)
+                    {
+                        _logger.LogError(ex, "Concurrency violation occurred at {repo} Update method", typeof(TaskService));
+
+                        entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+
+                        throw;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Unable to handle concurrency conflicts for " + entry.Metadata.Name);
+                    }
+                }
+            }
             catch (Exception ex)
             {
                _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(TaskService));
 
                 throw;
             }
+        }
+        private async Task<IEnumerable<TaskDto>> preformPaging(PagingDto dto)
+        {
+            if (dto.Page == null || dto.Page < 1)
+            {
+                dto.Page = 1;
+            }
+            if (dto.perPage == null || dto.perPage < 5)
+            {
+                dto.perPage = 5;
+            }
+
+            var tasksList = await _cacheProvider.GetCachedResponse(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
+
+            return tasksList.Select(x => new TaskDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Priority = x.Priority,
+                Status = x.Status,
+                ProjectId = x.ProjectId
+            });
         }
     }
 }
