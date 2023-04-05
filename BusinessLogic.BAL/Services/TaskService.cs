@@ -1,21 +1,14 @@
 ﻿using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Exceptions;
-using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
 using DataAccess.DAL.Extensions;
+using DataAccess.DAL.Logging;
 using Domain.Dto;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Services
 {
@@ -50,13 +43,11 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="id">Id of a task</param>
         /// <returns></returns>
-        public async Task Delete(int id)
+        public async Task DeleteAsync(int id)
         {
             try
             {
-                var taskRepo = _unitOfWork.Repository<TaskModel>();
-
-                var task = await taskRepo.SingleOrDefaultAsync(x => x.Id == id);
+                var task  =await  _unitOfWork.Repository<TaskModel>().SingleOrDefaultAsync(x => x.Id == id);
 
                 if (task == null)
                     throw new EntityNotFoundException(nameof(TaskDto), id);
@@ -67,12 +58,12 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Deleted a task with Id: {id} from Delete method {repo}", task.Id, typeof(TaskService));
+                _logger.LogInformation("Deleted a task with an Id: {id} from DeleteAsync method {repo}", task.Id, typeof(TaskService));
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} Delete method", typeof(TaskService));
+                _logger.LogError(ex, "Error occurred at {repo} DeleteAsync method", typeof(TaskService));
 
                 throw;
             }
@@ -81,20 +72,20 @@ namespace BusinessLogic.BAL.Services
         ///  Get all tasks.
         /// </summary>
         /// <returns></returns>
-        public async Task<IList<TaskDto>> GetAll(PagingDto dto)
+        public async Task<IList<TaskDto>> GetAllAsync(PagingDto dto)
         {
-            var tasks = await preformPaging(dto);
+            var tasks = await PreformPagingAsync(dto);
 
-            _logger.LogInforamtion("Retrived a tasks from GetAll method {repo}", typeof(TaskService));
+            _logger.LogInformation("Retrieved a tasks from GetAllAsync method {repo}", typeof(TaskService));
 
             return tasks.ToList();
         }
         /// <summary>
-        /// Get specific task by Id.
+        /// Get specific task by an Id.
         /// </summary>
         /// <param name="id">Id of a task</param>
         /// <returns></returns>
-        public async Task<TaskDto> GetOne(int id)
+        public async Task<TaskDto> GetOneAsync(int id)
         {
             try
             {
@@ -105,7 +96,7 @@ namespace BusinessLogic.BAL.Services
                     throw new EntityNotFoundException(nameof(TaskDto), id);
                 }
 
-                _logger.LogInforamtion("Retrived a task with Id: {id} from GetOne method {repo}",task.Id,typeof(TaskService));
+                _logger.LogInformation("Retrieved a task with an Id: {id} from GetOneAsync method {repo}", task.Id,typeof(TaskService));
 
                 return new TaskDto
                 {
@@ -119,7 +110,7 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,"Error occurred at {repo} GetOne method", typeof(TaskService));
+                _logger.LogError(ex, "Error occurred at {repo} GetOneAsync method", typeof(TaskService));
 
                 throw;
             }
@@ -129,11 +120,11 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="task">New task.</param>
         /// <returns></returns>
-        public async Task Insert(TaskDto task)
+        public async Task InsertAsync(TaskDto task)
         {
             try
             {
-                _validator.ValidateAndThrow(task);
+                await _validator.ValidateAndThrowAsync(task);
 
                 var t = new TaskModel()
                 {
@@ -144,16 +135,18 @@ namespace BusinessLogic.BAL.Services
                     Project = await _unitOfWork.Repository<ProjectModel>().FindAsync(task.ProjectId)
                 };
 
-                await _unitOfWork.Repository<TaskModel>().InsertAsync(t, true);
+                await _unitOfWork.Repository<TaskModel>().InsertAsync(t);
+
+                await _unitOfWork.Save();
 
                 task.Id = t.Id;
 
-                _logger.LogInforamtion("Created a tasks from Insert method {repo}", typeof(TaskService));
+                _logger.LogInformation("Created a task from InsertAsync method {repo}", typeof(TaskService));
 
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} Insert method", typeof(TaskService));
+                _logger.LogError(ex, "Error occurred at {repo} InsertAsync method", typeof(TaskService));
 
                 throw;
             }
@@ -165,13 +158,13 @@ namespace BusinessLogic.BAL.Services
         /// <param name="task">New task</param>
         /// <param name="id">Id of a task.</param>
         /// <returns></returns>
-        public async Task Update(TaskDto task,int id)
+        public async Task UpdateAsync(TaskDto task,int id)
         {
             try
             {
                 task.Id = id;
 
-                _validatorUpdate.ValidateAndThrow(task);
+                await _validatorUpdate.ValidateAndThrowAsync(task);
 
                 var row = await _unitOfWork.Repository<TaskModel>().SingleOrDefaultAsync(x => x.Id == task.Id);
 
@@ -187,7 +180,7 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Updated a task with an Id: {id} from Update method {repo}", task.Id, typeof(TaskService));
+                _logger.LogInformation("Updated a task with an Id: {id} from UpdateAsync method {repo}", task.Id, typeof(TaskService));
 
             }
             catch (DbUpdateConcurrencyException ex)
@@ -196,7 +189,7 @@ namespace BusinessLogic.BAL.Services
                 {
                     if (entry.Entity is TaskModel)
                     {
-                        _logger.LogError(ex, "Concurrency violation occurred at {repo} Update method", typeof(TaskService));
+                        _logger.LogError(ex, "Concurrency violation occurred at {repo} UpdateAsync method", typeof(TaskService));
 
                         entry.OriginalValues.SetValues(entry.GetDatabaseValues());
 
@@ -210,12 +203,12 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-               _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(TaskService));
+               _logger.LogError(ex, "Error occurred at {repo} UpdateAsync method", typeof(TaskService));
 
                 throw;
             }
         }
-        private async Task<IEnumerable<TaskDto>> preformPaging(PagingDto dto)
+        private async Task<IEnumerable<TaskDto>> PreformPagingAsync(PagingDto dto)
         {
             if (dto.Page == null || dto.Page < 1)
             {
@@ -226,7 +219,7 @@ namespace BusinessLogic.BAL.Services
                 dto.perPage = 5;
             }
 
-            var tasksList = await _cacheProvider.GetCachedResponse(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
+            var tasksList = await _cacheProvider.GetCachedResponseAsync(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
 
             return tasksList.Select(x => new TaskDto
             {

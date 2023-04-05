@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.PL.Middleware
 {
+    record ErrorResult(int StatusCode, object Response);
     public class GlobalExceptionHandler
     {
         private readonly RequestDelegate _next;
@@ -28,63 +29,37 @@ namespace PresentationLayer.PL.Middleware
             {
                 //log exception
                 _logger.LogError(ex,"Error from global exception handler, Erorr type: {err}", ex.GetType());
-
+                //set content-type
                 httpContext.Response.ContentType = "application/json";
 
-                //set default values for response json
-                object response = null;
+                ErrorResult result = ex switch
+                {
+                    UnauthorizedAccessException => new ErrorResult(StatusCodes.Status401Unauthorized, null),
 
-                var statusCode = StatusCodes.Status500InternalServerError;
-                if(ex is UnauthorizedAccessException)
-                {
-                    statusCode = StatusCodes.Status401Unauthorized;
-                }
-                if (ex is ForbbidenActionException)
-                {
-                    statusCode = StatusCodes.Status403Forbidden;
-                }
-                if (ex is EntityNotFoundException)
-                {
-                    statusCode = StatusCodes.Status404NotFound;
-                }
-                if (ex is ConflictedActionException)
-                {
-                    statusCode = StatusCodes.Status409Conflict;
-                    response = new { Error = ex.Message };
-                }
-                if (ex is DbUpdateConcurrencyException)
-                {
-                    statusCode = StatusCodes.Status409Conflict;
-                    response = new { Error = "Concurrency violation: The row has been updated or deleted by another transaction. Try again in a moment." };
-                }
-                if (ex is NotSupportedException)
-                {
-                    statusCode = StatusCodes.Status409Conflict;
-                    response = new { Error = ex.Message };
-                }
-                if (ex is RequestFailedException)
-                {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    response = new { Error = "Error while uploading file to cloud." };
-                }
-                if (ex is ValidationException e)
-                {
-                    statusCode = StatusCodes.Status422UnprocessableEntity;
-                    response = new
-                    {
-                        errors = e.Errors.Select(x => new
-                        {
-                            errorMessge = x.ErrorMessage,
-                            errorProperty = x.PropertyName
-                        })
-                    };
-                }
+                    ForbiddenActionException => new ErrorResult(StatusCodes.Status403Forbidden, null),
+
+                    EntityNotFoundException => new ErrorResult(StatusCodes.Status404NotFound, null),
+
+                    ConflictedActionException cex => new ErrorResult(StatusCodes.Status409Conflict, new { Error = cex.Message }),
+
+                    DbUpdateConcurrencyException => new ErrorResult(StatusCodes.Status409Conflict, new { Error = "Concurrency violation: The row has been updated or deleted by another transaction. Try again in a moment." }),
+
+                    NotSupportedException => new ErrorResult(StatusCodes.Status409Conflict, new { Error = ex.Message }),
+
+                    RequestFailedException => new ErrorResult(StatusCodes.Status400BadRequest, new { Error = "Error while uploading file to cloud." }),
+                    
+                    ValidationException e => new ErrorResult(StatusCodes.Status422UnprocessableEntity, new { errors = e.Errors.Select(x => new { errorMessge = x.ErrorMessage, errorProperty = x.PropertyName }) }),
+
+                    //set default values for response json
+                    _ => new ErrorResult(StatusCodes.Status500InternalServerError, null)
+                };
+
                 // return reposne json obj
-                httpContext.Response.StatusCode = statusCode;
+                httpContext.Response.StatusCode = result.StatusCode;
 
-                if (response != null)
+                if (result.Response != null)
                 {
-                    await httpContext.Response.WriteAsJsonAsync(response);
+                    await httpContext.Response.WriteAsJsonAsync(result.Response);
                 }
             }
         }

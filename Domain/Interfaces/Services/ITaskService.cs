@@ -1,20 +1,13 @@
-﻿using DataAccess.DAL.Core;
-using Domain.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Dto;
 
 namespace Domain.Interfaces.Services
 {
     public interface ITaskService
     {
-        Task<IList<TaskDto>> GetAll(PagingDto dto);
-        Task<TaskDto> GetOne(int id);
-        Task Update(TaskDto task, int id);
-        Task Insert(TaskDto task);
-        Task Delete(int id);
-
+        Task<IList<TaskDto>> GetAllAsync(PagingDto dto);
+        Task<TaskDto> GetOneAsync(int id);
+        Task UpdateAsync(TaskDto task, int id);
+        Task InsertAsync(TaskDto task);
+        Task DeleteAsync(int id);
     }
 }

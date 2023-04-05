@@ -12,13 +12,13 @@ namespace Domain.Interfaces.Services
 {
     public interface IProjectService
     {
-        Task <PagedResponse<ProjectResponseDto>> GetAll(SearchDto dto);
-        Task<ProjectResponseDto> GetOne(int id);
-        Task Update(UpdateProjectRequestDto task,int id);
-        Task<ProjectResponseDto> Insert(ProjectRequestDto task);
-        Task Delete(int id);
-        Task forceDelete(int id);
-        Task AddTasksToProject(AddTasksDto tasks, int id);
-        Task RemoveTasksFromProject(AddTasksDto tasks, int id);
+        Task <PagedResponse<ProjectResponseDto>> GetAllAsync(SearchDto dto);
+        Task<ProjectResponseDto> GetOneAsync(int id);
+        Task UpdateAsync(UpdateProjectRequestDto task,int id);
+        Task<ProjectResponseDto> InsertAsync(ProjectRequestDto task);
+        Task DeleteAsync(int id);
+        Task ForceDeleteAsync(int id);
+        Task AddTasksToProjectAsync(AddTasksDto tasks, int id);
+        Task RemoveTasksFromProjectAsync(AddTasksDto tasks, int id);
     }
 }

@@ -9,15 +9,15 @@ namespace Domain.Dto
 {
     public class SearchDto : PagingDto
     {
-        public string? KeyWord { get; set; }
+        public string? KeyWord { get; init; }
         //Results will be all projects that start after provided StartDate.
-        public DateTime? StartDate { get; set; }
+        public DateTime? StartDate { get; init; }
         //Results will be all projects that are finished before provided EndDate.
-        public DateTime? EndDate { get; set; }
-        public string? Name { get; set; }
-        public ProjectStatus? Status { get; set; }
-        public Priority? Priority { get; set; }
-        public bool? SortByNameAsc { get; set; }
+        public DateTime? EndDate { get; init; }
+        public string? Name { get; init; }
+        public ProjectStatus? Status { get; init; }
+        public Priority? Priority { get; init; }
+        public bool? SortByNameAsc { get; init; }
 
     }
 }

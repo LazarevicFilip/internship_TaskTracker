@@ -10,13 +10,13 @@ namespace Domain.Dto
 {
     public class ProjectResponseDto
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
-        public ProjectStatus ProjectStatus { get; set; }
-        public Priority? ProjectPriority { get; set; }
-        public string? FileURI { get; set; }
-        public List<TaskSummaryDto>? Taks { get; set; } = new();
+        public int Id { get; init; }
+        public string Name { get; init; }
+        public DateTime StartDate { get; init; }
+        public DateTime? CompletionDate { get; init; }
+        public ProjectStatus ProjectStatus { get; init; }
+        public Priority? ProjectPriority { get; init; }
+        public string? FileURI { get; init; }
+        public List<TaskSummaryDto>? Taks { get; init; } = new();
     }
 }

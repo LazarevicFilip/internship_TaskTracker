@@ -8,6 +8,6 @@ namespace Domain.Dto
 {
     public class AddTasksDto
     {
-        public List<int?> Tasks { get; set; }
+        public List<int?> Tasks { get; init; }
     }
 }

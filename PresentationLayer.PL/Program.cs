@@ -1,6 +1,5 @@
 using Azure.Storage.Blobs;
 using BusinessLogic.BAL.Cache;
-using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Options;
 using BusinessLogic.BAL.Services;
 using BusinessLogic.BAL.Storage;
@@ -24,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 //add auth
 builder.Services.AddJwtAuthetification(builder.Configuration);
 //add jwt handler
-builder.Services.AddJwtOptions(builder.Configuration);
+builder.Services.AddProjectOptions(builder.Configuration);
 
 //add http context
 builder.Services.AddHttpContextAccessor();
@@ -43,16 +42,12 @@ builder.Services.AddValidators();
 //add support for azure storage
 builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureStorageOptions:AzureBlobStorageConnectionString"]));
 builder.Services.AddSingleton<IBlobService, BlobService>();
-//var azureConfig = new AzureStorageOptions();
-//builder.Configuration.Bind(nameof(azureConfig), azureConfig);
-//builder.Services.AddSingleton(azureConfig);
-var mySectionConfig = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
-builder.Services.AddSingleton(mySectionConfig);
 
-//add user
-builder.Services.AddUser();
+var azureStorageOptions = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
+builder.Services.AddSingleton(azureStorageOptions);
 
-builder.Services.AddScopedServices();
+builder.Services.AddProjectServices();
+builder.Services.AddProjectPatterns();
 
 builder.Services.AddControllers()
         .AddNewtonsoftJson(options =>
@@ -60,7 +55,7 @@ builder.Services.AddControllers()
             options.SerializerSettings.Converters.Add(new StringEnumConverter());
         }); 
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

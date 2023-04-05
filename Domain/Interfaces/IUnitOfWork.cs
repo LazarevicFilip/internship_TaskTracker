@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
-        DbContext DbContext { get; }
+        protected DbContext DbContext { get; }
         IRepository<T> Repository<T>() where T : class;
         Task<int> Save(CancellationToken cancellationToken = default);
     }

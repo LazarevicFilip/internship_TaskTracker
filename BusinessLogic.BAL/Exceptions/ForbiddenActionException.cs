@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Exceptions
 {
-    public class ForbbidenActionException : Exception
+    public class ForbiddenActionException : Exception
     {
-        public ForbbidenActionException(string useCase, string user)
+        public ForbiddenActionException(string useCase, string user)
             : base($"User {user} has tried to execute {useCase} without having premission.")
         {
             

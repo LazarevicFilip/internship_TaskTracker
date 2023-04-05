@@ -14,32 +14,28 @@ namespace DataAccess.DAL
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        public DbSet<T> Entities => Context.Set<T>();
+        private readonly DbSet<T> _entities;
+        private readonly DbContext _context;
 
-        public DbContext Context { get; set; }
+        public DbSet<T> Entities => _entities;
+        public DbContext Context => _context;
+
         public Repository(DbContext context)
         {
-            Context = context;
+            _context = context;
+            _entities = context.Set<T>();
         }
-        public async Task DeleteAsync(int id, bool saveChanges = true)
+        public async Task DeleteAsync(int id)
         {
             var entity = await Entities.FindAsync(id);
             if (entity != null)
             {
                 Entities.Remove(entity);
             }
-            if (saveChanges)
-            {
-                await Context.SaveChangesAsync();
-            }
         }
-        public async Task DeleteAsync(T entity, bool saveChanges = true)
+        public void Delete(T entity)
         {
             Entities.Remove(entity);
-            if (saveChanges)
-            {
-                await Context.SaveChangesAsync();
-            }
         }
         public virtual async Task<T> FindAsync(params object[] keyValues)
         {
@@ -51,13 +47,9 @@ namespace DataAccess.DAL
             return await Entities.ToListAsync();
         }
 
-        public async Task InsertAsync(T entity, bool saveChanges = true)
+        public async Task InsertAsync(T entity)
         {
             await Entities.AddAsync(entity);
-            if (saveChanges)
-            {
-                await Context.SaveChangesAsync();
-            }
         }
         public virtual async Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {

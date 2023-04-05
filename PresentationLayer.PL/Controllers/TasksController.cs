@@ -1,11 +1,6 @@
-﻿using BusinessLogic.BAL.Exceptions;
-using BusinessLogic.BAL.Services;
-using DataAccess.DAL;
-using DataAccess.DAL.Core;
-using Domain.Dto;
-using Domain.Interfaces;
+﻿using Domain.Dto;
 using Domain.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationLayer.PL.Controllers
@@ -25,7 +20,7 @@ namespace PresentationLayer.PL.Controllers
         public async Task<IActionResult> GetAll([FromQuery] PagingDto dto)
         {
 
-            return Ok(await _service.GetAll(dto));
+            return Ok(await _service.GetAllAsync(dto));
 
         }
         [HttpGet("{id}",Name = nameof(GetOne))]
@@ -35,7 +30,7 @@ namespace PresentationLayer.PL.Controllers
         public async Task<IActionResult> GetOne(int id)
         {
 
-            return Ok(await _service.GetOne(id));
+            return Ok(await _service.GetOneAsync(id));
 
         }
         [HttpPost]
@@ -45,7 +40,7 @@ namespace PresentationLayer.PL.Controllers
         public async Task<IActionResult> Create([FromBody]TaskDto dto)
         {
            
-            await _service.Insert(dto);
+            await _service.InsertAsync(dto);
             return CreatedAtAction(nameof(GetOne),new {id = dto.Id},dto);
            
         }
@@ -56,7 +51,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update([FromBody] TaskDto dto,int id)
         {
-            await _service.Update(dto,id);
+            await _service.UpdateAsync(dto,id);
             return NoContent();
            
         }
@@ -67,7 +62,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.Delete(id);
+            await _service.DeleteAsync(id);
             return NoContent();
         }
     }

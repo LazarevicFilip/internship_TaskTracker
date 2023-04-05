@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Domain.Dto;
 using System;
+using Domain.Dto.V1.Request;
+using System.Reflection.Metadata;
 
 namespace TaskTracker.IntegrationTests
 {
@@ -14,31 +16,28 @@ namespace TaskTracker.IntegrationTests
         protected readonly HttpClient _httpClient;
         protected IntegrationTest()
         {
-            var appFactory = new WebApplicationFactory<Program>()
-                .WithWebHostBuilder(builder =>
-                {
-                    builder.ConfigureServices(services =>
-                    {
-                        //var descriptor = services.SingleOrDefault(d =>
-                        //     d.ServiceType == typeof(DbContextOptions<TaskContext>));
-
-                        //if (descriptor != null)
-                        //{
-                        //    services.Remove(descriptor);
-                        //}
-                        //services.AddDbContext<TaskContext>(options => options.UseInMemoryDatabase("testDb"));
-                    });
-                });
+            var appFactory = new WebApplicationFactory<Program>();
+               
             _httpClient = appFactory.CreateClient();
         }
-        protected async Task AutheticateAsync()
+        protected async Task AuthenticateAsync()
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", await GetJwtAsync());
         }
-        protected async Task<ProjectResponseDto> CreateProjectAsync(ProjectResponseDto request)
+        protected async Task<ProjectResponseDto> CreateProjectAsync(ProjectRequestDto request)
         {
+            //This is required because [FromFile] attribute on controller action
+            var content = new MultipartFormDataContent
+            {
+                { new StringContent(request.Name), "Name" },
+                { new StringContent(request.StartDate.ToString("yyyy-MM-dd")), "StartDate" },
+                { new StringContent(request.CompletionDate?.ToString("yyyy-MM-dd")), "CompletionDate" },
+                { new StringContent(request.ProjectStatus.ToString()), "ProjectStatus" },
+                { new StringContent(request.ProjectPriority.ToString()), "ProjectPriority" }
+            };
+
             var endpoint = "/api/projects";
-            var response = await _httpClient.PostAsJsonAsync(endpoint, request);
+            var response = await _httpClient.PostAsync(endpoint, content);
             return await response.Content.ReadAsAsync<ProjectResponseDto>();
         }
         protected async Task<string> DeleteProjectAsync(int id)

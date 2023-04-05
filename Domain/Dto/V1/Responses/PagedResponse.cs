@@ -8,10 +8,10 @@ namespace Domain.Dto.V1.Responses
 {
     public class PagedResponse<T>
     {
-        public int Page { get; set; }
-        public int PerPage { get; set; }
-        public int TotalCount { get; set; }
+        public int Page { get; init; }
+        public int PerPage { get; init; }
+        public int TotalCount { get; init; }
         public int PagesCount => (int)Math.Ceiling((float)TotalCount / PerPage);
-        public IEnumerable<T> Data { get; set; }
+        public IEnumerable<T> Data { get; init; }
     }
 }

@@ -10,10 +10,10 @@ namespace Domain.Dto
     public class TaskDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Status Status { get; set; }
-        public string? Description { get; set; }
+        public string Name { get; init; } = string.Empty;
+        public Status Status { get; init; }
+        public string? Description { get; init; }
         public Priority? Priority { get; set; }
-        public int ProjectId { get; set; }
+        public int ProjectId { get; init; }
     }
 }

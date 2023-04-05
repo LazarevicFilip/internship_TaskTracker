@@ -16,6 +16,9 @@ namespace DataAccess.DAL.Configuration
             builder.Property(x => x.Name).IsRequired(true).HasMaxLength(60);
             builder.HasIndex(x => x.Name).IsUnique(true);
 
+            builder.HasIndex(x => new { x.StartDate, x.CompletionDate});
+            builder.HasIndex(x => new { x.ProjectStatus, x.ProjectPriority });
+
             builder.Property(project => project.FileURI)
                 .HasDefaultValue(string.Empty);
 

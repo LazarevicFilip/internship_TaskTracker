@@ -1,14 +1,11 @@
-﻿using DataAccess.DAL.Core;
+﻿using Azure.Core;
+using DataAccess.DAL.Core;
 using Domain.Dto;
+using Domain.Dto.V1.Request;
+using Domain.Dto.V1.Responses;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace TaskTracker.IntegrationTests
 {
@@ -23,22 +20,22 @@ namespace TaskTracker.IntegrationTests
             var response = await _httpClient.GetAsync(endpoint);
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var x = await (response.Content.ReadAsAsync<List<ProjectResponseDto>>());
+            var x = await (response.Content.ReadAsAsync<PagedResponse<ProjectResponseDto>>());
             //x.Should().BeEmpty();
-            x.Should().AllBeOfType<ProjectResponseDto>();
-            x.Should().OnlyHaveUniqueItems();
-            x.Should().NotBeNullOrEmpty();
+            x.Data.Should().AllBeOfType<ProjectResponseDto>();
+            x.Data.Should().OnlyHaveUniqueItems();
+            x.Data.Should().NotBeNullOrEmpty();
         }
         [Fact]
         public async Task GetOne_ReturnsProject_WhenProjectExistsInDatabase()
         {
             //Arrange
-            var project = await CreateProjectAsync(new ProjectResponseDto
+            var project = await CreateProjectAsync(new ProjectRequestDto
             {
                 Name = "Project from tests",
                 StartDate = new DateTime(2022, 11, 21),
                 CompletionDate = new DateTime(2023, 12, 22),
-                ProjectStatus = (DataAccess.DAL.Core.ProjectStatus)1,
+                ProjectStatus = (DataAccess.DAL.Core.ProjectStatus.Active),
                 ProjectPriority = Priority.Middle
 
             });

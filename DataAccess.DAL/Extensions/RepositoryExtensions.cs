@@ -17,20 +17,20 @@ namespace DataAccess.DAL.Extensions
         {
             return await repository.Entities.AnyAsync(predicate);
         }
-        public static IQueryable<T> Where<T>(this IRepository<T> repository, Expression<Func<T, bool>> predicate)
+        public static List<T> Where<T>(this IRepository<T> repository, Expression<Func<T, bool>> predicate)
             where T : class
         {
-            return repository.Entities.Where(predicate);
+            return  repository.Entities.Where(predicate).ToList();
         }
-        public static IQueryable<TResult> Select<T, TResult>(this IRepository<T> repository, Expression<Func<T, TResult>> selector)
+        public static IEnumerable<TResult> Select<T, TResult>(this IRepository<T> repository, Expression<Func<T, TResult>> selector)
             where T : class
         {
-            return repository.Entities.Select(selector);
+            return repository.Entities.Select(selector).ToList();
         }
-        public static IIncludableQueryable<T, TProperty> Include<T, TProperty>(this IRepository<T> repository, Expression<Func<T, TProperty>> path)
+        public static IEnumerable<T> Include<T, TProperty>(this IRepository<T> repository, Expression<Func<T, TProperty>> path)
             where T : class
         {
-            return repository.Entities.Include(path);
+            return repository.Entities.Include(path).ToList();
         }
         public static IQueryable<T> AsQueryable<T>(this IRepository<T> repository) where T : class
         {
@@ -46,9 +46,9 @@ namespace DataAccess.DAL.Extensions
         //{
         //    return await repository.Entities.SingleOrDefaultAsync(predicate);
         //}
-        public static IQueryable<T> IgnoreQueryFilters<T>(this IRepository<T> repository) where T : class
+        public static async Task<T> SingleOrDefaultAsyncWithIgnoreQueryFilters<T>(this IRepository<T> repository, Expression<Func<T,bool>> predicate) where T : class
         {
-            return repository.Entities.IgnoreQueryFilters();
+            return await repository.Entities.IgnoreQueryFilters().SingleOrDefaultAsync(predicate);
         }
 
     }

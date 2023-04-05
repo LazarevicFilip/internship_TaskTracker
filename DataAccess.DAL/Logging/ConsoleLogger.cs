@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.BAL.Logging
+namespace DataAccess.DAL.Logging
 {
     public class ConsoleLogger : ILoggingService
     {
@@ -22,7 +22,7 @@ namespace BusinessLogic.BAL.Logging
           _logger.LogError(ex, message, parameters);
         }
 
-        public void LogInforamtion(string message, params object[] parameters)
+        public void LogInformation(string message, params object[] parameters)
         {
             _logger.LogInformation(message, parameters);
         }

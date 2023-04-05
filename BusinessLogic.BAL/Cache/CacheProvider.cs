@@ -24,10 +24,10 @@ namespace BusinessLogic.BAL.Cache
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<T>> GetCachedResponse(string cacheKey,int page = 1, int perPage = 5)
+        public async Task<IEnumerable<T>> GetCachedResponseAsync(string cacheKey,int page = 1, int perPage = 5)
         {
             var cacheKeyWithQueryString = $"{cacheKey}_{page}_{perPage}";
-            bool isAvailable = _cache.TryGetValue(cacheKeyWithQueryString, out IList<T> items);
+            bool isAvailable = _cache.TryGetValue(cacheKeyWithQueryString, out IList<T>? items);
             if (isAvailable)
             {
                 return items;

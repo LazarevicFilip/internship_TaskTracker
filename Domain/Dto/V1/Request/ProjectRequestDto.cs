@@ -10,11 +10,11 @@ namespace Domain.Dto.V1.Request
 {
     public class ProjectRequestDto
     {
-        public string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
-        public ProjectStatus ProjectStatus { get; set; }
-        public Priority? ProjectPriority { get; set; }
-        public IFormFile? File { get; set; }
+        public string Name { get; init; }
+        public DateTime StartDate { get; init; }
+        public DateTime? CompletionDate { get; init; }
+        public ProjectStatus ProjectStatus { get; init; }
+        public Priority? ProjectPriority { get; init; }
+        public IFormFile? File { get; init; }
     }
 }

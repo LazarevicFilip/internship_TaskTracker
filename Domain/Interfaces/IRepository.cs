@@ -14,9 +14,9 @@ namespace Domain.Interfaces
         DbContext Context { get; }
         Task<IList<T>> GetAllAsync();
         Task<T> FindAsync(params object[] keyValues);
-        Task InsertAsync(T entity, bool saveChanges = true);
-        Task DeleteAsync(int id, bool saveChanges = true);
-        Task DeleteAsync(T entity, bool saveChanges = true);
+        Task InsertAsync(T entity);
+        Task DeleteAsync(int id);
+        void Delete(T entity);
         Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate);
     }
 }

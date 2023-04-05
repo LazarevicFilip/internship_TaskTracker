@@ -1,8 +1,6 @@
 ﻿using Domain.Dto;
 using Domain.Dto.V1.Request;
 using Domain.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationLayer.PL.Controllers
@@ -23,7 +21,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAll([FromQuery] SearchDto dto)
         {
-            return Ok(await _service.GetAll(dto));
+            return Ok(await _service.GetAllAsync(dto));
         }
 
         [HttpGet("{id}", Name = nameof(GetOneProject))]
@@ -32,7 +30,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOneProject(int id)
         {
-            return Ok(await _service.GetOne(id));
+            return Ok(await _service.GetOneAsync(id));
         }
 
         [HttpPost]
@@ -41,7 +39,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromForm] ProjectRequestDto dto)
         {
-           var project = await _service.Insert(dto);
+           var project = await _service.InsertAsync(dto);
            return CreatedAtAction(nameof(GetOneProject), new { id = project.Id, }, project);
         }
         [HttpPut("{id}")]
@@ -51,7 +49,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update([FromForm] UpdateProjectRequestDto dto, int id)
         {
-            await _service.Update(dto, id);
+            await _service.UpdateAsync(dto, id);
             return NoContent();
 
         }
@@ -63,7 +61,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.Delete(id);
+            await _service.DeleteAsync(id);
             return NoContent();
         }
         [HttpDelete("force/{id}")]
@@ -72,19 +70,19 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> forceDelete(int id)
         {
-            await _service.forceDelete(id);
+            await _service.ForceDeleteAsync(id);
             return NoContent();
         }
         [HttpPost("{id}/tasks")]
         public async Task<IActionResult> AddTasksToProject([FromBody] AddTasksDto tasks,int id)
         {
-            await _service.AddTasksToProject(tasks,id);
+            await _service.AddTasksToProjectAsync(tasks,id);
             return StatusCode(StatusCodes.Status201Created);
         }
         [HttpDelete("{id}/tasks")]
         public async Task<IActionResult> RemoveTasksFromProject([FromBody] AddTasksDto tasks, int id)
         {
-            await _service.RemoveTasksFromProject(tasks, id);
+            await _service.RemoveTasksFromProjectAsync(tasks, id);
             return NoContent();
         }
 

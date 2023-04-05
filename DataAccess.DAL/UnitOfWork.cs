@@ -12,32 +12,22 @@ namespace DataAccess.DAL
 {
     public class UnitOfWork : IUnitOfWork
     {
-        public DbContext DbContext { get; private set; }
+        private readonly DbContext _context;
+        private object _lockObject = new object();
+
+        public DbContext DbContext => _context;
         private Dictionary<string, object> Repositories { get; }
+
         public UnitOfWork(TaskContext context)
         {
-            DbContext = context;
+            _context = context;
             Repositories = new Dictionary<string, dynamic>();
         }
-        public void Dispose()
-        {
-            if (DbContext == null)
-                return;
-
-            //if (DbContext.Database.GetDbConnection().State == ConnectionState.Open)
-            //{
-            //    DbContext.Database.GetDbConnection().Close();
-            //}
-            DbContext.Dispose();
-
-            DbContext = null;
-        }
-
         public IRepository<T> Repository<T>() where T : class
         {
             var type = typeof(T);
             var typeName = type.Name;
-            lock (Repositories)
+            lock (_lockObject)
             {
                 if (Repositories.ContainsKey(typeName))
                 {

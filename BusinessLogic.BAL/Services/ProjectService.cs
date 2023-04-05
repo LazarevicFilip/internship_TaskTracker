@@ -1,12 +1,11 @@
 ﻿using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Exceptions;
-using BusinessLogic.BAL.Logging;
 using BusinessLogic.BAL.Storage;
-using BusinessLogic.BAL.Utility;
 using BusinessLogic.BAL.Validators;
 using BusinessLogic.BAL.Validators.ProjectsValidator;
 using DataAccess.DAL.Core;
 using DataAccess.DAL.Extensions;
+using DataAccess.DAL.Logging;
 using Domain.Dto;
 using Domain.Dto.V1.Request;
 using Domain.Dto.V1.Responses;
@@ -14,11 +13,6 @@ using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Services
 {
@@ -54,7 +48,7 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="id">Id of a project</param>
         /// <returns></returns>
-        public async Task Delete(int id)
+        public async Task DeleteAsync(int id)
         {
             try
             {
@@ -62,7 +56,7 @@ namespace BusinessLogic.BAL.Services
 
                 var projectWithTasks = projectRepo.Include(x => x.Tasks);
 
-                var project = await projectWithTasks.SingleOrDefaultAsync(x => x.Id == id);
+                var project = await projectRepo.SingleOrDefaultAsync(x => x.Id == id);
 
                 if (project == null)
                 {
@@ -78,11 +72,11 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Deleted a project with Id: {id} from Delete method {repo}", id, typeof(ProjectService));
+                _logger.LogInformation("Deleted a project with an Id: {id} from DeleteAsync method {repo}", id, typeof(ProjectService));
 
             } catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} Delete method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} DeleteAsync method", typeof(ProjectService));
 
                 throw;
             }
@@ -92,25 +86,26 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="id">Id of a project</param>
         /// <returns></returns>
-        public async Task forceDelete(int id)
+        public async Task ForceDeleteAsync(int id)
         {
             try
             {
-                var project = await _unitOfWork.Repository<ProjectModel>().IgnoreQueryFilters<ProjectModel>().SingleOrDefaultAsync(x => x.Id == id);
+                var project = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsyncWithIgnoreQueryFilters(x => x.Id == id);
 
                 if (project == null)
                 {
                     throw new EntityNotFoundException(nameof(ProjectModel), id);
                 }
+                _unitOfWork.Repository<ProjectModel>().Delete(project);
 
-                await _unitOfWork.Repository<ProjectModel>().DeleteAsync(project);
+                await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Deleted a project with Id: {id} from forceDelete method {repo}", id, typeof(ProjectService));
+                _logger.LogInformation("Deleted a project with an Id: {id} from ForceDeleteAsync method {repo}", id, typeof(ProjectService));
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} forceDelete method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} ForceDeleteAsync method", typeof(ProjectService));
 
                 throw;
             }
@@ -121,16 +116,16 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        public async Task<PagedResponse<ProjectResponseDto>> GetAll(SearchDto dto)
+        public async Task<PagedResponse<ProjectResponseDto>> GetAllAsync(SearchDto dto)
         {
-            var projects = await preformFiltering(dto);
+            var projects = await preformFilteringAsync(dto);
 
             if (projects.Any())
             {
-                projects = (IList<ProjectModel>)await _cacheProvider.GetCachedResponse(nameof(ProjectService), dto.Page.Value, dto.perPage.Value);
+                projects = (IList<ProjectModel>)await _cacheProvider.GetCachedResponseAsync(nameof(ProjectService), dto.Page.Value, dto.perPage.Value);
             }
 
-            _logger.LogInforamtion("Retrived projects from GetAll method {repo}", typeof(ProjectService));
+            _logger.LogInformation("Retrieved projects from GetAllAsync method {repo}", typeof(ProjectService));
 
             var projectsCount = await _unitOfWork.Repository<ProjectModel>().GetAllAsync();
 
@@ -160,7 +155,7 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="id">Id of a project</param>
         /// <returns></returns>
-        public async Task<ProjectResponseDto> GetOne(int id)
+        public async Task<ProjectResponseDto> GetOneAsync(int id)
         {
             try
             {
@@ -171,7 +166,7 @@ namespace BusinessLogic.BAL.Services
                     throw new EntityNotFoundException(nameof(ProjectResponseDto), id);
                 }
 
-                _logger.LogInforamtion("Retrived a project with an Id: {id} from GetOne method {repo}", id, typeof(ProjectService));
+                _logger.LogInformation("Retrieved a project with an Id: {id} from GetOneAsync method {repo}", id, typeof(ProjectService));
 
                 return new ProjectResponseDto
                 {
@@ -191,21 +186,21 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} GetOne method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} GetOneAsync method", typeof(ProjectService));
 
                 throw;
             }
         }
         /// <summary>
-        /// Create new project
+        /// Create a new project
         /// </summary>
         /// <param name="dto">New project</param>
         /// <returns></returns>
-        public async Task<ProjectResponseDto> Insert(ProjectRequestDto dto)
+        public async Task<ProjectResponseDto> InsertAsync(ProjectRequestDto dto)
         {
             try
             {
-                _createProjectValidator.ValidateAndThrow(dto);
+                await _createProjectValidator.ValidateAndThrowAsync(dto);
 
                 var project = new ProjectModel()
                 {
@@ -224,7 +219,9 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Repository<ProjectModel>().InsertAsync(project);
 
-                _logger.LogInforamtion("Create a project from Insert method {repo}", typeof(ProjectService));
+                await _unitOfWork.Save();
+
+                _logger.LogInformation("Create a project from InsertAsync method {repo}", typeof(ProjectService));
 
                 return new ProjectResponseDto
                 {
@@ -244,7 +241,7 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} Insert method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} InsertAsync method", typeof(ProjectService));
 
                 throw;
             }
@@ -255,13 +252,13 @@ namespace BusinessLogic.BAL.Services
         /// <param name="project">New project</param>
         /// <param name="id">Id of a project</param>
         /// <returns></returns>
-        public async Task Update(UpdateProjectRequestDto project, int id)
+        public async Task UpdateAsync(UpdateProjectRequestDto project, int id)
         {
             try
             {
                 project.Id = id;
-
-                _updateProjectValidator.ValidateAndThrow(project);
+                    
+                await _updateProjectValidator.ValidateAndThrowAsync(project);
 
                 var context = _unitOfWork.Repository<ProjectModel>();
 
@@ -280,7 +277,7 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Update projects with an Id: {id} from Update method {repo}", id, typeof(ProjectService));
+                _logger.LogInformation("Update projects with an Id: {id} from UpdateAsync method {repo}", id, typeof(ProjectService));
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -288,7 +285,7 @@ namespace BusinessLogic.BAL.Services
                 {
                     if (entry.Entity is ProjectModel)
                     {
-                        _logger.LogError(ex, "Concurrency violation occurred at {repo} Update method", typeof(ProjectService));
+                        _logger.LogError(ex, "Concurrency violation occurred at {repo} UpdateAsync method", typeof(ProjectService));
 
                         entry.OriginalValues.SetValues(entry.GetDatabaseValues());
 
@@ -302,18 +299,18 @@ namespace BusinessLogic.BAL.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} Update method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} UpdateAsync method", typeof(ProjectService));
 
                 throw;
             }
         }
         /// <summary>
-        /// Add all provided tasks to a specified project.
+        /// Add provided tasks to a specified project.
         /// </summary>
         /// <param name="tasks">Array of ids that represent each task.</param>
         /// <param name="id">Id of a project</param>
         /// <returns></returns>
-        public async Task AddTasksToProject(AddTasksDto tasks, int id)
+        public async Task AddTasksToProjectAsync(AddTasksDto tasks, int id)
         {
             try
             {
@@ -322,30 +319,30 @@ namespace BusinessLogic.BAL.Services
                 {
                     throw new EntityNotFoundException(nameof(ProjectResponseDto), id);
                 }
-                _tasksProjectValidator.ValidateAndThrow(tasks);
-
+                await _tasksProjectValidator.ValidateAndThrowAsync(tasks);
+                    
                 var taskModels = _unitOfWork.Repository<TaskModel>().Where(x => tasks.Tasks.Contains(x.Id));
 
                 project.Tasks.AddRange(taskModels);
 
                 await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Add tasks to project from AddTasksToProject method {repo}", typeof(ProjectService));
+                _logger.LogInformation("Add tasks to the project from AddTasksToProjectAsync method {repo}", typeof(ProjectService));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred at {repo} AddTasksToProject method", typeof(ProjectService));
+                _logger.LogError(ex, "Error occurred at {repo} AddTasksToProjectAsync method", typeof(ProjectService));
 
                 throw;
             }
         }
         /// <summary>
-        /// Delete all provided tasks for specified project. (soft delete) 
+        /// Delete all provided tasks for a specified project. (soft delete) 
         /// </summary>
         /// <param name="tasks">Array of ids that represent each task.</param>
         /// <param name="id">Id of a project</param>
         /// <returns></returns>
-        public async Task RemoveTasksFromProject(AddTasksDto tasks, int id)
+        public async Task RemoveTasksFromProjectAsync(AddTasksDto tasks, int id)
         {
             try
             {
@@ -354,9 +351,9 @@ namespace BusinessLogic.BAL.Services
                 {
                     throw new EntityNotFoundException(nameof(ProjectResponseDto), id);
                 }
-                _tasksProjectValidator.ValidateAndThrow(tasks);
+                await _tasksProjectValidator.ValidateAndThrowAsync(tasks);
 
-                var taskModels = await _unitOfWork.Repository<TaskModel>().Where(x => tasks.Tasks.Contains(x.Id)).ToListAsync();
+                var taskModels = _unitOfWork.Repository<TaskModel>().Where(x => tasks.Tasks.Contains(x.Id));
 
                 taskModels.ForEach(x =>
                 {
@@ -366,7 +363,7 @@ namespace BusinessLogic.BAL.Services
 
                 await _unitOfWork.Save();
 
-                _logger.LogInforamtion("Remove tasks from project in RemoveTasksFromProject method {repo}", typeof(ProjectService));
+                _logger.LogInformation("Remove tasks from the project in RemoveTasksFromProjectAsync method {repo}", typeof(ProjectService));
             }
             catch (Exception ex)
             {
@@ -380,7 +377,7 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        private async Task<IList<ProjectModel>> preformFiltering(SearchDto dto)
+        private async Task<IList<ProjectModel>> preformFilteringAsync(SearchDto dto)
         {
             if (dto.Page == null || dto.Page < 1)
             {
@@ -390,7 +387,7 @@ namespace BusinessLogic.BAL.Services
             {
                 dto.perPage = 5;
             }
-            //building of a query, if property of dto is not null, we include that parameter in query
+            //building of a query, if the property of dto is not null, we include that parameter in
             var projects = _unitOfWork.Repository<ProjectModel>().AsQueryable();
             if (dto.StartDate.HasValue)
             {
