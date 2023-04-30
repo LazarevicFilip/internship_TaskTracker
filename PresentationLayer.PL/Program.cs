@@ -53,8 +53,16 @@ builder.Services.AddControllers()
         .AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.Converters.Add(new StringEnumConverter());
-        }); 
-
+        });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ClientAppPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
 //Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -76,6 +84,7 @@ app.UseSwaggerUI();
 //Add custom middleware. Global exception hanlder (global try/cacth block)
 app.UseMiddleware<GlobalExceptionHandler>();
 
+app.UseCors("ClientAppPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 

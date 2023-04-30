@@ -24,7 +24,7 @@ namespace BusinessLogic.BAL.Cache
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<T>> GetCachedResponseAsync(string cacheKey,int page = 1, int perPage = 5)
+        public async Task<IEnumerable<T>> GetCachedResponseAsync(string cacheKey, List<T> data,int page = 1, int perPage = 5)
         {
             var cacheKeyWithQueryString = $"{cacheKey}_{page}_{perPage}";
             bool isAvailable = _cache.TryGetValue(cacheKeyWithQueryString, out IList<T>? items);
@@ -40,9 +40,11 @@ namespace BusinessLogic.BAL.Cache
 
                 if (isAvailable) return items;
 
-                items = await _unitOfWork.Repository<T>().GetAllAsync();
+                //items = await _unitOfWork.Repository<T>().GetAllAsync();
 
-                items = items.Skip(((page - 1) * perPage)).Take(perPage).ToList();
+                //items = items.Skip(((page - 1) * perPage)).Take(perPage).ToList();
+
+                items = data;
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions
                 {

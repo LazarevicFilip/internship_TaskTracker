@@ -22,7 +22,14 @@ namespace BusinessLogic.BAL.Storage
             _blobOptions = blobOptions;
         }
 
-        public async Task<string> UploadFileBlobAsync(IFormFile file)
+        public async Task DeleteFileBlobAsync(string fileName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(_blobOptions.AzureBlobStorageContainer);
+            var blobClient = containerClient.GetBlobClient(fileName);
+            await blobClient.DeleteIfExistsAsync();
+        }
+
+        public async Task<(string uri, string newFileName)> UploadFileBlobAsync(IFormFile file)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(_blobOptions.AzureBlobStorageContainer);
 
@@ -34,7 +41,7 @@ namespace BusinessLogic.BAL.Storage
             {
                 await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = file.ContentType });
             }
-            return blobClient.Uri.AbsoluteUri;
+            return (blobClient.Uri.AbsoluteUri, newFileName);
         }
     }
 }

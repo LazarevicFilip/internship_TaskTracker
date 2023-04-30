@@ -2,6 +2,7 @@
 using BusinessLogic.BAL.Exceptions;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace PresentationLayer.PL.Middleware
 {
@@ -47,8 +48,12 @@ namespace PresentationLayer.PL.Middleware
                     NotSupportedException => new ErrorResult(StatusCodes.Status409Conflict, new { Error = ex.Message }),
 
                     RequestFailedException => new ErrorResult(StatusCodes.Status400BadRequest, new { Error = "Error while uploading file to cloud." }),
-                    
-                    ValidationException e => new ErrorResult(StatusCodes.Status422UnprocessableEntity, new { errors = e.Errors.Select(x => new { errorMessge = x.ErrorMessage, errorProperty = x.PropertyName }) }),
+
+                    BadRequestException => new ErrorResult(StatusCodes.Status400BadRequest, new { Error = ex.Message }),
+
+                    ValidationException e => new ErrorResult(StatusCodes.Status422UnprocessableEntity, new { Error = e.Errors.Select(x => new { errorMessge = x.ErrorMessage, errorProperty = x.PropertyName }) }),
+
+                    ArgumentException => new ErrorResult(StatusCodes.Status400BadRequest, new { Error = "Your token is invalid." }),
 
                     //set default values for response json
                     _ => new ErrorResult(StatusCodes.Status500InternalServerError, null)

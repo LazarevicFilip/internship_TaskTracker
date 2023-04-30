@@ -21,6 +21,8 @@ namespace DataAccess.DAL
         {
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
             //gloabl query filter
+            modelBuilder.Entity<ProjectUsers>().HasAlternateKey(x => new { x.UserId, x.ProjectId });
+            modelBuilder.Entity<ProjectUserTasks>().HasKey(x => new { x.ProjectUserId, x.TaskId });
             modelBuilder.Entity<ProjectModel>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<TaskModel>().HasQueryFilter(x => x.IsActive);
 
@@ -50,6 +52,11 @@ namespace DataAccess.DAL
         public DbSet<TaskModel> Tasks { get; set; }
         public DbSet<ProjectModel> Projects { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        public DbSet<ProjectUsers> ProjectUsers { get; set; }
+        public DbSet<ProjectUserTasks> ProjectUserTasks { get; set; }
+        public DbSet<TaskFiles> Files { get; set; }
 
     }
 }

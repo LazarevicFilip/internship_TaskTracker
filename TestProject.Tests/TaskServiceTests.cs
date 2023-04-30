@@ -57,8 +57,7 @@ namespace TaskTracker.UnitTests
             _taskServiceMock.Setup(x => x.Repository<TaskModel>().SingleOrDefaultAsync(x => x.Id == taskId)).ReturnsAsync(taskModel);
             //Act
             var task = await _sut.GetOneAsync(taskId);
-            //Assert
-            _loggerMock.Verify(x => x.LogInformation("Retrieved a task with Id: {id} from GetOneAsync method {repo}", task.Id, typeof(TaskService)), Times.Once);
+            _loggerMock.Verify(x => x.LogInformation("Retrieved a task with an Id: {id} from GetOneAsync method {repo}", task.Id, typeof(TaskService)), Times.Once);
         }
     }
 }

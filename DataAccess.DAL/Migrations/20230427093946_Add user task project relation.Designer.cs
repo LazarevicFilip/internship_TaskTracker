@@ -4,6 +4,7 @@ using DataAccess.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.DAL.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    partial class TaskContextModelSnapshot : ModelSnapshot
+    [Migration("20230427093946_Add user task project relation")]
+    partial class Addusertaskprojectrelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,13 +89,13 @@ namespace DataAccess.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            CompletionDate = new DateTime(2023, 8, 29, 11, 28, 53, 31, DateTimeKind.Utc).AddTicks(8539),
-                            CreatedAt = new DateTime(2023, 4, 29, 11, 28, 53, 31, DateTimeKind.Utc).AddTicks(8537),
+                            CompletionDate = new DateTime(2023, 8, 27, 9, 39, 46, 97, DateTimeKind.Utc).AddTicks(8119),
+                            CreatedAt = new DateTime(2023, 4, 27, 9, 39, 46, 97, DateTimeKind.Utc).AddTicks(8115),
                             IsActive = false,
                             Name = "Project from seeder.",
                             ProjectPriority = 3,
                             ProjectStatus = 0,
-                            StartDate = new DateTime(2023, 4, 29, 11, 28, 53, 31, DateTimeKind.Utc).AddTicks(8539)
+                            StartDate = new DateTime(2023, 4, 27, 9, 39, 46, 97, DateTimeKind.Utc).AddTicks(8118)
                         });
                 });
 
@@ -144,6 +146,9 @@ namespace DataAccess.DAL.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -219,36 +224,6 @@ namespace DataAccess.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("Domain.Core.TaskFiles", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileUri")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("Domain.Core.User", b =>
@@ -373,17 +348,6 @@ namespace DataAccess.DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Core.TaskFiles", b =>
-                {
-                    b.HasOne("DataAccess.DAL.Core.TaskModel", "Task")
-                        .WithMany("Files")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-                });
-
             modelBuilder.Entity("DataAccess.DAL.Core.ProjectModel", b =>
                 {
                     b.Navigation("Tasks");
@@ -393,8 +357,6 @@ namespace DataAccess.DAL.Migrations
 
             modelBuilder.Entity("DataAccess.DAL.Core.TaskModel", b =>
                 {
-                    b.Navigation("Files");
-
                     b.Navigation("Users");
                 });
 

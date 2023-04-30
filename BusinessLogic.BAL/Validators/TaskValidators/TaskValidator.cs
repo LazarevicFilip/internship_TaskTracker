@@ -19,7 +19,7 @@ namespace BusinessLogic.BAL.Validators.TaskValidators
             _context = context;
             RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Name is required parameter.")
-                .Length(2, 20).WithMessage("Name of the task must be between 2 and 20 characters.");
+                .Length(2, 35).WithMessage("Name of the task must be between 2 and 20 characters.");
 
             RuleFor(x => x.Status)
                 .IsInEnum().WithMessage("Available statuses of the tasks are 0,1 and 2.");

@@ -10,6 +10,7 @@ namespace BusinessLogic.BAL.Storage
 {
     public interface IBlobService
     {
-        public Task<string> UploadFileBlobAsync(IFormFile file);
+        public Task<(string uri, string newFileName)> UploadFileBlobAsync(IFormFile file);
+        public Task DeleteFileBlobAsync(string fileName);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace DataAccess.DAL.Core
         public Priority? Priority { get; set; }
         public ProjectModel Project { get; set; } = new ProjectModel();
         public int ProjectId { get; set; }
+        public IList<ProjectUserTasks> Users { get; set; }
+        public IList<TaskFiles> Files { get; set; }
         public byte[] RowVersion { get; set; }
     }
 }

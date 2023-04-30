@@ -1,14 +1,20 @@
 ﻿using BusinessLogic.BAL.Cache;
 using BusinessLogic.BAL.Exceptions;
+using BusinessLogic.BAL.Storage;
+using BusinessLogic.BAL.Validators;
 using BusinessLogic.BAL.Validators.TaskValidators;
 using DataAccess.DAL.Core;
 using DataAccess.DAL.Extensions;
 using DataAccess.DAL.Logging;
+using Domain.Core;
 using Domain.Dto;
+using Domain.Dto.V1.Request;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Services
 {
@@ -18,20 +24,24 @@ namespace BusinessLogic.BAL.Services
         private readonly ILoggingService _logger;
         private readonly CreateTaskValidator _validator;
         private readonly UpdateTaskValidator _validatorUpdate;
+        private readonly FileRequestDtoValidator _validatorTaskWithFile;
         private ICacheProvider<TaskModel> _cacheProvider;
+
 
         public TaskService(
             IUnitOfWork unitOfWork,
             CreateTaskValidator validator,
             ILoggingService logger,
             UpdateTaskValidator validatorUpdate,
-            ICacheProvider<TaskModel> cacheProvider)
+            ICacheProvider<TaskModel> cacheProvider,
+            FileRequestDtoValidator validatorTaskWithFile)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
             _validatorUpdate = validatorUpdate;
             _cacheProvider = cacheProvider;
+            _validatorTaskWithFile = validatorTaskWithFile;
         }
         public TaskService(IUnitOfWork unitOfWork, ILoggingService logger)
         {
@@ -136,7 +146,17 @@ namespace BusinessLogic.BAL.Services
                 };
 
                 await _unitOfWork.Repository<TaskModel>().InsertAsync(t);
-
+          ;
+                //});
+                foreach (var u in task.UserIds)
+                {
+                    var user = await _unitOfWork.Repository<ProjectUsers>().SingleOrDefaultAsync(x => x.ProjectId == t.ProjectId && x.UserId == u);
+                    await _unitOfWork.Repository<ProjectUserTasks>().InsertAsync(new ProjectUserTasks
+                    {
+                        ProjectUserId = user.Id,
+                        Task = t
+                    });
+                }
                 await _unitOfWork.Save();
 
                 task.Id = t.Id;
@@ -177,6 +197,22 @@ namespace BusinessLogic.BAL.Services
                 row.Priority= task.Priority;
                 row.Description= task.Description;
                 row.UpdatedAt = DateTime.UtcNow;
+
+                foreach (var u in task.UserIds)
+                {
+                    var user = await _unitOfWork.Repository<ProjectUsers>().SingleOrDefaultAsync(x => x.ProjectId == row.ProjectId && x.UserId == u);
+                    var userAlreadyOnTask =  _unitOfWork.Repository<ProjectUserTasks>().Where(x => x.TaskId == task.Id);
+                    userAlreadyOnTask.ForEach(x =>
+                    {
+                        _unitOfWork.Repository<ProjectUserTasks>().Delete(x);
+                    });
+                  
+                    await _unitOfWork.Repository<ProjectUserTasks>().InsertAsync(new ProjectUserTasks
+                    {
+                        ProjectUserId = user.Id,
+                        Task = row
+                    });
+                }
 
                 await _unitOfWork.Save();
 
@@ -219,7 +255,11 @@ namespace BusinessLogic.BAL.Services
                 dto.perPage = 5;
             }
 
-            var tasksList = await _cacheProvider.GetCachedResponseAsync(nameof(TaskService),dto.Page.Value,dto.perPage.Value);
+            var tasksList = await _unitOfWork.Repository<TaskModel>().ToListAsync();
+
+            var tasks = tasksList.Skip(((dto.Page.Value - 1) * dto.perPage.Value)).Take(dto.perPage.Value).ToList();
+
+            var cachedTasks = await _cacheProvider.GetCachedResponseAsync(nameof(TaskService), tasks, dto.Page.Value,dto.perPage.Value);
 
             return tasksList.Select(x => new TaskDto
             {
@@ -230,6 +270,64 @@ namespace BusinessLogic.BAL.Services
                 Status = x.Status,
                 ProjectId = x.ProjectId
             });
+        }
+
+        public async Task InsertTaskFilesAsync(FileRequestDto dto,string fileUri, string newFileName)
+        {
+            try
+            {
+                await _validatorTaskWithFile.ValidateAndThrowAsync(dto);
+
+                var taskFileModel = new TaskFiles
+                {
+                    FileName = newFileName,
+                    ContentType = dto.File.ContentType,
+                    FileUri = fileUri,
+                    TaskId = int.Parse(dto.TaskId)
+                };
+                await _unitOfWork.Repository<TaskFiles>().InsertAsync(taskFileModel);
+                await _unitOfWork.Save();
+
+                _logger.LogInformation("Created a taskFileModel from InsertTaskFiles method {repo}", typeof(TaskService));
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred at {repo} InsertTaskFiles method", typeof(TaskService));
+
+                throw;
+            }
+        }
+
+        public async Task DeleteTaskFilesAsync(int taskId, string fileName)
+        {
+            try
+            {
+                var fileToDelete = await _unitOfWork.Repository<TaskFiles>().SingleOrDefaultAsync(x => x.FileName == fileName && x.TaskId == taskId);
+                if (fileToDelete == null)
+                {
+                    throw new EntityNotFoundException(nameof(TaskFiles), taskId);
+                }
+                await _unitOfWork.Repository<TaskFiles>().DeleteAsync(fileToDelete.Id);
+                await _unitOfWork.Save();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred at {repo} DeleteTaskFilesAsync method", typeof(TaskService));
+
+                throw;
+
+            }
+        }
+        public List<FileResponseDto> GetTaskFiles(int taskId)
+        {
+            var files =  _unitOfWork.Repository<TaskFiles>().Where(x => x.TaskId == taskId).Select(x => new FileResponseDto
+            {
+                FileName = x.FileName,
+                FileUri = x.FileUri,
+            }).ToList();
+
+            return files;
         }
     }
 }

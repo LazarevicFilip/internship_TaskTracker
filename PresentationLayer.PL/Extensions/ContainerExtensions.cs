@@ -25,10 +25,36 @@ namespace PresentationLayer.PL.Extensions
         /// <param name="settings"></param>
         public static void AddJwtAuthetification(this IServiceCollection service,IConfiguration settings)
         {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+                ValidIssuer = settings["JwtSettings:Issuer"],
+                ValidAudience = "any",
+                ValidateIssuer = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings["JwtSettings:Secret"])),
+            };
+
+
             service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(settings.GetSection("AzureAdB2C"))
-            .EnableTokenAcquisitionToCallDownstreamApi()
-            .AddInMemoryTokenCaches();
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = true,
+                        ValidIssuer = settings["JwtSettings:Issuer"],
+                        ValidAudience = "any",
+                        ValidateIssuer = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings["JwtSettings:Secret"])),
+                        ClockSkew = TimeSpan.Zero,
+                        ValidateLifetime = true,
+                    };
+                });
+
+            service.AddSingleton(tokenValidationParameters);
         }
         /// <summary>
         /// Add helper class that issue tokens to clients.
@@ -37,9 +63,9 @@ namespace PresentationLayer.PL.Extensions
         /// <param name="settings"></param>
         public static void AddProjectOptions(this IServiceCollection service, IConfiguration settings)
         {
-            var authConfig = new AuthConfig();
-            settings.Bind(nameof(authConfig), authConfig);
-            service.AddSingleton(authConfig);
+            var jwtSettings = new JwtSettings();
+            settings.Bind(nameof(jwtSettings), jwtSettings);
+            service.AddSingleton(jwtSettings);
         }
         /// <summary>
         /// Add validators (Fluent Validation Library)
@@ -52,6 +78,8 @@ namespace PresentationLayer.PL.Extensions
             services.AddScoped<UpdateProjectValidator>();
             services.AddScoped<CreateProjectValidator>();
             services.AddScoped<AddTasksDtoValidator>();
+            services.AddScoped<RegisterUserValidator>();
+            services.AddScoped<FileRequestDtoValidator>();
         }
         /// <summary>
         /// Add services
@@ -59,10 +87,13 @@ namespace PresentationLayer.PL.Extensions
         /// <param name="services"></param>
         public static void AddProjectServices(this IServiceCollection services)
         {
+            services.AddScoped<IIdentityService, IdentityService>();
             //add services(repositories)
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<ILoggingService, ConsoleLogger>();
+            services.AddScoped<IFileService, FileService>();
+
         }
         /// <summary>
         /// Add patterns
@@ -71,10 +102,10 @@ namespace PresentationLayer.PL.Extensions
         public static void AddProjectPatterns(this IServiceCollection services)
         {
             //Add patterns
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
-        
+
     }
 
    

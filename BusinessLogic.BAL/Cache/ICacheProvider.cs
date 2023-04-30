@@ -9,6 +9,6 @@ namespace BusinessLogic.BAL.Cache
 {
     public interface ICacheProvider<T>
     {
-        public Task<IEnumerable<T>> GetCachedResponseAsync(string keyName, int page, int perPage);
+        public Task<IEnumerable<T>> GetCachedResponseAsync(string keyName, List<T> data, int page, int perPage);
     }
 }

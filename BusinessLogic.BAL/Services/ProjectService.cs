@@ -6,13 +6,17 @@ using BusinessLogic.BAL.Validators.ProjectsValidator;
 using DataAccess.DAL.Core;
 using DataAccess.DAL.Extensions;
 using DataAccess.DAL.Logging;
+using Domain.Core;
 using Domain.Dto;
+using Domain.Dto.V1;
 using Domain.Dto.V1.Request;
 using Domain.Dto.V1.Responses;
 using Domain.Interfaces;
 using Domain.Interfaces.Services;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.BAL.Services
 {
@@ -120,9 +124,11 @@ namespace BusinessLogic.BAL.Services
         {
             var projects = await preformFilteringAsync(dto);
 
+            var cachedProjects = new List<ProjectModel>();
+
             if (projects.Any())
             {
-                projects = (IList<ProjectModel>)await _cacheProvider.GetCachedResponseAsync(nameof(ProjectService), dto.Page.Value, dto.perPage.Value);
+                cachedProjects = (List<ProjectModel>)await _cacheProvider.GetCachedResponseAsync(nameof(ProjectService),projects, dto.Page.Value - 1, dto.perPage.Value);
             }
 
             _logger.LogInformation("Retrieved projects from GetAllAsync method {repo}", typeof(ProjectService));
@@ -131,7 +137,7 @@ namespace BusinessLogic.BAL.Services
 
             return new PagedResponse<ProjectResponseDto>
             {
-                Data = projects.Select(x => new ProjectResponseDto
+                Data = cachedProjects.Select(x => new ProjectResponseDto
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -214,7 +220,7 @@ namespace BusinessLogic.BAL.Services
                 {
                     var fileURI = await _blobService.UploadFileBlobAsync(dto.File);
 
-                    project.FileURI = fileURI;
+                    project.FileURI = fileURI.uri;
                 }
 
                 await _unitOfWork.Repository<ProjectModel>().InsertAsync(project);
@@ -377,7 +383,7 @@ namespace BusinessLogic.BAL.Services
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        private async Task<IList<ProjectModel>> preformFilteringAsync(SearchDto dto)
+        private async Task<List<ProjectModel>> preformFilteringAsync(SearchDto dto)
         {
             if (dto.Page == null || dto.Page < 1)
             {
@@ -416,6 +422,52 @@ namespace BusinessLogic.BAL.Services
             //point of materialization, we send constructed query to db
             return await projects.Skip(((dto.Page.Value - 1) * dto.perPage.Value)).Take(dto.perPage.Value).ToListAsync();
         }
+
+        public async Task<IEnumerable<ProjectSummaryResponseDto>> GetProjectsOfUserAsync(int userId)
+        {
+            var userProjects =  _unitOfWork.Repository<ProjectModel>().Where(x => x.Users.Any(u => u.UserId == userId));
+
+            var cachedUserProjects = await _cacheProvider.GetCachedResponseAsync("TasksOfPRojects", userProjects, 0, 0);
+
+            return cachedUserProjects.Select(x => new ProjectSummaryResponseDto
+            {
+                Id = x.Id,
+                Name = x.Name
+            });
+           
+
+        }
+
+        public async Task<IEnumerable<TaskDto>> GetProjectTasksAsync(int projectId)
+        {
+            var project = await _unitOfWork.Repository<ProjectModel>().SingleOrDefaultAsync(x => x.Id == projectId);
+
+            if (project == null)
+            {
+                throw new EntityNotFoundException(nameof(ProjectResponseDto), projectId);
+            }
+
+            var tasks = _unitOfWork.Repository<TaskModel>().Include(x => x.Files).Where(x => x.ProjectId == projectId);
+
+            var s = _unitOfWork.Repository<ProjectUserTasks>().Include(x => x.ProjectUsers).ToList();
+
+            return tasks.Select(x => new TaskDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                ProjectId = projectId,
+                Priority = x.Priority,
+                Description = x.Description,
+                Status = x.Status,
+                UserIds = s.Where(y => y.TaskId == x.Id).Select(x => x.ProjectUsers.UserId).ToList(),
+                TaskFiles = x.Files?.Select(y => new FileResponseDto
+                {
+                    FileName = y.FileName,
+                    FileUri = y.FileUri,
+                }).ToList(),
+            });
+        }
+
     }
 }
 

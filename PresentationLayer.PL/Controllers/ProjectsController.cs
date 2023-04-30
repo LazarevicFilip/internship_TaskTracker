@@ -1,13 +1,16 @@
-﻿using Domain.Dto;
+﻿using DataAccess.DAL;
+using Domain.Dto;
 using Domain.Dto.V1.Request;
 using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+    //[Authorize]
     public class ProjectsController : ControllerBase
     {
         private readonly IProjectService _service;
@@ -24,7 +27,7 @@ namespace PresentationLayer.PL.Controllers
             return Ok(await _service.GetAllAsync(dto));
         }
 
-        [HttpGet("{id}", Name = nameof(GetOneProject))]
+        [HttpGet("{id:int}", Name = nameof(GetOneProject))]
         [ProducesResponseType(StatusCodes.Status200OK,Type=typeof(ProjectResponseDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -74,16 +77,43 @@ namespace PresentationLayer.PL.Controllers
             return NoContent();
         }
         [HttpPost("{id}/tasks")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddTasksToProject([FromBody] AddTasksDto tasks,int id)
         {
             await _service.AddTasksToProjectAsync(tasks,id);
             return StatusCode(StatusCodes.Status201Created);
         }
         [HttpDelete("{id}/tasks")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RemoveTasksFromProject([FromBody] AddTasksDto tasks, int id)
         {
             await _service.RemoveTasksFromProjectAsync(tasks, id);
             return NoContent();
+        }
+        [HttpGet("user")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetUserProjects()
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "UserId");
+
+            var projects = await _service.GetProjectsOfUserAsync(int.Parse(userId!.Value));
+
+            return Ok(projects);
+        }
+        [HttpGet("{id}/tasks")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetProjectTasks(int id)
+        {
+            var tasksOfProject =await _service.GetProjectTasksAsync(id);
+
+            return Ok(tasksOfProject);
         }
 
     }

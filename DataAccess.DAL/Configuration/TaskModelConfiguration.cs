@@ -23,6 +23,17 @@ namespace DataAccess.DAL.Configuration
                 .WithMany(x => x.Tasks)
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Users)
+                .WithOne(x => x.Task)
+                .HasForeignKey(x => x.TaskId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Files)
+                .WithOne(x => x.Task)
+                .HasForeignKey(x => x.TaskId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Domain.Core;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,11 @@ namespace DataAccess.DAL.Configuration
             builder.HasIndex(x => x.UserName).IsUnique(true);
             builder.HasIndex(x => x.LastName);
             builder.HasIndex(x => x.FirstName);
+
+            builder.HasMany(x => x.Projects)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

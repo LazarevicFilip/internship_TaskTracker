@@ -29,6 +29,11 @@ namespace DataAccess.DAL.Configuration
                 .HasForeignKey(x => x.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasMany(x => x.Users)
+                .WithOne(x => x.Project)
+                .HasForeignKey(x => x.ProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             if (builder.Metadata.FindAnnotation("HasData") == null)
             {
                 builder.HasData(new ProjectModel

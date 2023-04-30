@@ -9,7 +9,7 @@ namespace Domain.Core
     public class AutheticationResult
     {
         public string Token { get; set; }
-        public int Num { get; set; }
+        public string RefreshToken { get; set; }
         public bool IsSuccess { get; set; }
         public IEnumerable<string> Errors { get; set; }
     }

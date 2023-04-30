@@ -39,7 +39,7 @@ namespace DataAccess.DAL.Extensions
         public static async Task<List<T>> ToListAsync<T>(this IRepository<T> repository)
             where T : class
         {
-            return await repository.ToListAsync();
+            return await repository.Entities.ToListAsync();
         }
         //public  static  async Task<T> SingleOrDefaultAsync<T>(this IRepository<T> repository, Expression<Func<T, bool>> predicate)
         //    where T : class
