@@ -3,10 +3,6 @@
     "identityapp1": {
       "restored": true,
       "restoreTime": "2023-01-06T13:36:07.1940502Z"
-    },
-    "mssql1": {
-      "restored": true,
-      "restoreTime": "2023-01-06T13:36:03.0215102Z"
     }
   },
   "parameters": {

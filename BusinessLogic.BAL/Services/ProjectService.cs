@@ -145,7 +145,7 @@ namespace BusinessLogic.BAL.Services
                     CompletionDate = x.CompletionDate,
                     ProjectStatus = x.ProjectStatus,
                     ProjectPriority = x.ProjectPriority,
-                    Taks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == x.Id).Select(t => new TaskSummaryDto
+                    Tasks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == x.Id).Select(t => new TaskSummaryDto
                     {
                         Id = t.Id,
                         Name = t.Name,
@@ -183,7 +183,7 @@ namespace BusinessLogic.BAL.Services
                     ProjectStatus = project.ProjectStatus,
                     ProjectPriority = project.ProjectPriority,
                     FileURI = project.FileURI,
-                    Taks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == project.Id).Select(t => new TaskSummaryDto
+                    Tasks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == project.Id).Select(t => new TaskSummaryDto
                     {
                         Id = t.Id,
                         Name = t.Name
@@ -216,6 +216,19 @@ namespace BusinessLogic.BAL.Services
                     ProjectStatus = dto.ProjectStatus,
                     ProjectPriority = dto.ProjectPriority,
                 };
+
+                if (dto.UserIds != null)
+                {
+                    foreach (var user in dto.UserIds)
+                    {
+                        await _unitOfWork.Repository<ProjectUsers>().InsertAsync(new ProjectUsers
+                        {
+                            Project = project,
+                            UserId = user
+                        });
+                    }
+                }
+
                 if (dto.File != null)
                 {
                     var fileURI = await _blobService.UploadFileBlobAsync(dto.File);
@@ -236,13 +249,14 @@ namespace BusinessLogic.BAL.Services
                     StartDate = project.StartDate,
                     CompletionDate = project.CompletionDate,
                     FileURI = project.FileURI,
-                    Taks = project.Tasks.Select(x => new TaskSummaryDto
+                    Tasks = project.Tasks.Select(x => new TaskSummaryDto
                     {
                         Id = x.Id,
                         Name = x.Name,
                     }).ToList(),
                     ProjectStatus = project.ProjectStatus,
                     ProjectPriority = project.ProjectPriority,
+
                 };
             }
             catch (Exception ex)

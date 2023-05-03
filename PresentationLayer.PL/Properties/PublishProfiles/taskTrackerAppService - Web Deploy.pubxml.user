@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAlfeV6GyL0ke+fEtLPZnBlwAAAAACAAAAAAAQZgAAAAEAACAAAABjl9I+HWv96rGlSMmtjOTb9G2oGrY2nHQ/iBDaoIrULwAAAAAOgAAAAAIAACAAAACOmQFtZ+clsKXPZvVv1RlXadDnv35hJ+ZgIrqh0vM444AAAACLqJ8z/Dg2J2lNHcGPwjuQkqRPPhw5CFSTHHYps2yxB8srRLjYwzvYb1kB9V0EToa3LpTCDhz5Ls01O5axgLZPdY/isr6n8hcdjP/6Ma/MbAmblkUbATogwS8Mt9crvoK8qIl+vgZEHn6hxrh06D6g0rhIFqEuf8wlG1y67Is0/UAAAABDkELuV0I36YVFeWnCCM6meo3eHlGwsDGbjsfrjFvhaByfmJ6c92Y0UEaO9DEH35WLvn3Noi4IkyytrjumhUOh</EncryptedPassword>
+    <History>True|2023-05-02T18:48:55.2840633Z;True|2023-05-02T20:42:25.8160035+02:00;True|2023-05-02T20:29:57.6371479+02:00;True|2023-05-02T19:59:01.2826664+02:00;False|2023-05-02T19:44:40.8332432+02:00;True|2023-05-02T17:41:02.7856382+02:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DefaultConnection">
+      <Value>Data Source=tcp:task-trackerdbserver.database.windows.net,1433%3bInitial Catalog=task-tracker%3bUser Id=taskTrackerAdmin%40task-trackerdbserver%3bPassword=Slagalica99!</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

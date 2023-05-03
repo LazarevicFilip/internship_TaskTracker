@@ -16,5 +16,6 @@ namespace Domain.Dto.V1.Request
         public ProjectStatus ProjectStatus { get; init; }
         public Priority? ProjectPriority { get; init; }
         public IFormFile? File { get; init; }
+        public List<int>? UserIds { get; init; }
     }
 }

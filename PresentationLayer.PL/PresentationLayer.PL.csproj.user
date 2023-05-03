@@ -4,7 +4,7 @@
     <ActiveDebugProfile>PresentationLayer.PL</ActiveDebugProfile>
     <Controller_SelectedScaffolderID>MvcControllerWithActionsScaffolder</Controller_SelectedScaffolderID>
     <Controller_SelectedScaffolderCategoryPath>root/Common/MVC/Controller</Controller_SelectedScaffolderCategoryPath>
-    <NameOfLastUsedPublishProfile>C:\Users\Laza\source\repos\internship_TaskTracker\PresentationLayer.PL\Properties\PublishProfiles\TaskManagmentWebApi - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Users\Filip\Desktop\taskTrackerClient\internship_TaskTracker\PresentationLayer.PL\Properties\PublishProfiles\taskTrackerAppService - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>

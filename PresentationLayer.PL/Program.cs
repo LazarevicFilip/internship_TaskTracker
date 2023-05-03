@@ -23,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 //add auth
 builder.Services.AddJwtAuthetification(builder.Configuration);
 //add jwt handler
-builder.Services.AddProjectOptions(builder.Configuration);
+//builder.Services.AddProjectOptions(builder.Configuration);
 
 //add http context
 builder.Services.AddHttpContextAccessor();
@@ -40,11 +40,11 @@ builder.Services.AddScoped(typeof(ICacheProvider<>), typeof(CacheProvider<>));
 builder.Services.AddValidators();
 
 //add support for azure storage
-builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureStorageOptions:AzureBlobStorageConnectionString"]));
+builder.Services.AddSingleton(service => new BlobServiceClient(builder.Configuration["AzureBlobStorageConnectionString"]));
 builder.Services.AddSingleton<IBlobService, BlobService>();
 
-var azureStorageOptions = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
-builder.Services.AddSingleton(azureStorageOptions);
+//var azureStorageOptions = builder.Configuration.GetSection("AzureStorageOptions").Get<AzureStorageOptions>();
+//builder.Services.AddSingleton(azureStorageOptions);
 
 builder.Services.AddProjectServices();
 builder.Services.AddProjectPatterns();

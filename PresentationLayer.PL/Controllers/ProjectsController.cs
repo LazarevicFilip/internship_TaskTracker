@@ -10,7 +10,7 @@ namespace PresentationLayer.PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ProjectsController : ControllerBase
     {
         private readonly IProjectService _service;

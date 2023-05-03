@@ -10,6 +10,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -27,16 +28,16 @@ namespace BusinessLogic.BAL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly RegisterUserValidator _registerValidator;
-        private readonly JwtSettings _settings;
+        private readonly IConfiguration _settings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly TaskContext _db;
-        public IdentityService(RegisterUserValidator registerValidator, JwtSettings settings, IUnitOfWork unitOfWork, TokenValidationParameters tokenValidationParameters, TaskContext db)
+        public IdentityService(RegisterUserValidator registerValidator, IUnitOfWork unitOfWork, TokenValidationParameters tokenValidationParameters, TaskContext db, IConfiguration settings)
         {
             _registerValidator = registerValidator;
-            _settings = settings;
             _unitOfWork = unitOfWork;
             _tokenValidationParameters = tokenValidationParameters;
             _db = db;
+            _settings = settings;
         }
         /// <summary>
         /// Get User from Db. If there is user with provided credentials Jwt User is returned.
@@ -192,22 +193,22 @@ namespace BusinessLogic.BAL.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iss, _settings.Issuer),
-                new Claim("UserId", actor.Id.ToString(), ClaimValueTypes.String, _settings.Issuer),
+                new Claim(JwtRegisteredClaimNames.Iss, _settings["Issuer"]),
+                new Claim("UserId", actor.Id.ToString(), ClaimValueTypes.String,_settings["Issuer"]),
                 new Claim(JwtRegisteredClaimNames.Email, actor.Email),
             };
             //Signing token
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_settings.Secret!));
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_settings["Secret"]!));
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             //Create token
             var now = DateTime.UtcNow;
             var token = new JwtSecurityToken(
-                issuer: _settings.Issuer,
+                issuer: _settings["Issuer"],
                 audience: "any",
                 claims: claims,
                 notBefore: now,
-                expires: now.Add(_settings.TokenLifeTime),
+                expires: now.AddSeconds(25),
                 //expires: now.AddDays(1),
                 signingCredentials: credentials);
 

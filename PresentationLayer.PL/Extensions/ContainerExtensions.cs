@@ -28,11 +28,11 @@ namespace PresentationLayer.PL.Extensions
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
-                ValidIssuer = settings["JwtSettings:Issuer"],
+                ValidIssuer = settings["Issuer"],
                 ValidAudience = "any",
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings["JwtSettings:Secret"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings["Secret"])),
             };
 
 
@@ -44,11 +44,11 @@ namespace PresentationLayer.PL.Extensions
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateAudience = true,
-                        ValidIssuer = settings["JwtSettings:Issuer"],
+                        ValidIssuer = settings["Issuer"],
                         ValidAudience = "any",
                         ValidateIssuer = true,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings["JwtSettings:Secret"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings["Secret"])),
                         ClockSkew = TimeSpan.Zero,
                         ValidateLifetime = true,
                     };

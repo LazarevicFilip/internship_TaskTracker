@@ -21,6 +21,17 @@ namespace BusinessLogic.BAL.Validators.ProjectsValidator
             RuleFor(x => x)
                 .Must(y => !_context.Projects.Any(z => z.Name == y.Name))
                 .WithMessage("There is already project with the same name.");
+
+            RuleFor(x => x.UserIds).Cascade(CascadeMode.Stop)
+               .Must(x => x.Count() == x.Distinct().Count())
+               .When(x => x.UserIds != null)
+               .WithMessage("There are a duplicates in the set of the provided ids.");
+
+            RuleForEach(x => x.UserIds).Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("All values in the array needs to have value.")
+                .Must(x => _context.Users.Any(y => y.Id == x))
+                 .When(x => x.UserIds != null)
+                .WithMessage("Value {PropertyValue} doesn't corresponding to any task in the system");
         }
 
     }
