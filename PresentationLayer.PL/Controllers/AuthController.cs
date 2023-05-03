@@ -48,14 +48,5 @@ namespace PresentationLayer.PL.Controllers
 
             return response.IsSuccess ? Ok(new AuthSuccessResponse { AccessToken = response.Token, RefreshToken = response.RefreshToken }) : BadRequest(new AuthBadResponse { Error = response.Errors.ToArray() });
         }
-        [HttpGet("users")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthSuccessResponse))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Users([FromServices]TaskContext context)
-        {
-            return Ok(context.Users.Select(x => new {Id = x.Id,UserName=x.UserName}).ToList());
-        }
-
-
     }
 }

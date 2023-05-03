@@ -1,5 +1,6 @@
 ﻿using DataAccess.DAL;
 using Domain.Dto;
+using Domain.Dto.Auth.Responses;
 using Domain.Dto.V1.Request;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -114,6 +115,14 @@ namespace PresentationLayer.PL.Controllers
             var tasksOfProject =await _service.GetProjectTasksAsync(id);
 
             return Ok(tasksOfProject);
+        }
+        [HttpGet("{id}/users")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthSuccessResponse))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Users(int id)
+        {
+            var usersOfProject = _service.GetProjectUsers(id);
+            return Ok(usersOfProject);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using DataAccess.DAL.Core;
+using Domain.Core;
 using Domain.Dto;
 using Domain.Dto.V1;
 using Domain.Dto.V1.Request;
@@ -23,5 +24,7 @@ namespace Domain.Interfaces.Services
         Task RemoveTasksFromProjectAsync(AddTasksDto tasks, int id);
         Task<IEnumerable<ProjectSummaryResponseDto>> GetProjectsOfUserAsync(int userId);
         Task<IEnumerable<TaskDto>> GetProjectTasksAsync(int projectId);
+        IEnumerable<UserDto> GetProjectUsers(int projectId);
+   
     }
 }

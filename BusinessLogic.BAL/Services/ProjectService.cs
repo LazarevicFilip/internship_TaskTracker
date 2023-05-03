@@ -481,6 +481,17 @@ namespace BusinessLogic.BAL.Services
                 }).ToList(),
             });
         }
+        public IEnumerable<UserDto> GetProjectUsers(int projectId)
+        {
+            var users = _unitOfWork.Repository<User>().Where(x => x.Projects.Any(y => y.ProjectId == projectId)).Select(x => new UserDto
+            {
+                Id = x.Id,
+                UserName = x.UserName
+            }).ToList();
+
+            return users;
+        }
+      
 
     }
 }

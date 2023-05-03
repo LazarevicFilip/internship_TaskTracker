@@ -208,7 +208,7 @@ namespace BusinessLogic.BAL.Services
                 audience: "any",
                 claims: claims,
                 notBefore: now,
-                expires: now.AddSeconds(25),
+                expires: now.AddMinutes(25),
                 //expires: now.AddDays(1),
                 signingCredentials: credentials);
 
