@@ -146,8 +146,7 @@ namespace BusinessLogic.BAL.Services
                 };
 
                 await _unitOfWork.Repository<TaskModel>().InsertAsync(t);
-          ;
-                //});
+
                 foreach (var u in task.UserIds)
                 {
                     var user = await _unitOfWork.Repository<ProjectUsers>().SingleOrDefaultAsync(x => x.ProjectId == t.ProjectId && x.UserId == u);
@@ -198,14 +197,17 @@ namespace BusinessLogic.BAL.Services
                 row.Description= task.Description;
                 row.UpdatedAt = DateTime.UtcNow;
 
+                var userAlreadyOnTask = _unitOfWork.Repository<ProjectUserTasks>().Where(x => x.TaskId == task.Id);
+                userAlreadyOnTask.ForEach(x =>
+                {
+                    _unitOfWork.Repository<ProjectUserTasks>().Delete(x);
+                });
+
                 foreach (var u in task.UserIds)
                 {
                     var user = await _unitOfWork.Repository<ProjectUsers>().SingleOrDefaultAsync(x => x.ProjectId == row.ProjectId && x.UserId == u);
-                    var userAlreadyOnTask =  _unitOfWork.Repository<ProjectUserTasks>().Where(x => x.TaskId == task.Id);
-                    userAlreadyOnTask.ForEach(x =>
-                    {
-                        _unitOfWork.Repository<ProjectUserTasks>().Delete(x);
-                    });
+                   
+                  
                   
                     await _unitOfWork.Repository<ProjectUserTasks>().InsertAsync(new ProjectUserTasks
                     {

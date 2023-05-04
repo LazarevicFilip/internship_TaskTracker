@@ -2,6 +2,7 @@
 using Domain.Dto;
 using Domain.Dto.V1.Request;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace BusinessLogic.BAL.Validators.ProjectsValidator
           
             Include(new ProjectValidator(context));
             RuleFor(x => x)
-                .Must(y => !_context.Projects.Any(z => z.Name == y.Name))
+                .Must(y => !_context.Projects.IgnoreQueryFilters().Any(z => z.Name == y.Name ))
                 .WithMessage("There is already project with the same name.");
 
             RuleFor(x => x.UserIds).Cascade(CascadeMode.Stop)
