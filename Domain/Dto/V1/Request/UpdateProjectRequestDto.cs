@@ -15,5 +15,6 @@ namespace Domain.Dto.V1.Request
         public DateTime? CompletionDate { get; init; }
         public ProjectStatus ProjectStatus { get; init; }
         public Priority? ProjectPriority { get; init; }
+        public List<int> UserIds { get; init; }
     }
 }

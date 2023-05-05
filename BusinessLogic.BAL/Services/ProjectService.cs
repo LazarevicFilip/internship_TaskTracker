@@ -68,7 +68,8 @@ namespace BusinessLogic.BAL.Services
                 }
                 if (project.Tasks.Any())
                 {
-                    throw new ConflictedActionException("Cannot delete a project because it contains tasks. Tasks:" + string.Join(",", project.Tasks.Select(x => x.Name)));
+                    //throw new ConflictedActionException("Cannot delete a project because it contains tasks. Tasks:" + string.Join(",", project.Tasks.Select(x => x.Name)));
+                    throw new ConflictedActionException("Cannot delete a project because it contains tasks.");
                 }
                 //Soft delete
                 project.IsActive = false;
@@ -124,27 +125,29 @@ namespace BusinessLogic.BAL.Services
         {
             var projects = await preformFilteringAsync(dto);
 
-            var cachedProjects = new List<ProjectModel>();
+            //var cachedProjects = new List<ProjectModel>();
 
-            if (projects.Any())
-            {
-                cachedProjects = (List<ProjectModel>)await _cacheProvider.GetCachedResponseAsync(nameof(ProjectService),projects, dto.Page.Value - 1, dto.perPage.Value);
-            }
+            //if (projects.Any())
+            //{
+            //    cachedProjects = (List<ProjectModel>)await _cacheProvider.GetCachedResponseAsync(nameof(ProjectService),projects, dto.Page.Value - 1, dto.perPage.Value);
+            //}
 
             _logger.LogInformation("Retrieved projects from GetAllAsync method {repo}", typeof(ProjectService));
 
-            var projectsCount = await _unitOfWork.Repository<ProjectModel>().GetAllAsync();
+            var projectsCount =  _unitOfWork.Repository<ProjectModel>().Include(x => x.Users).ToList();
 
             return new PagedResponse<ProjectResponseDto>
             {
-                Data = cachedProjects.Select(x => new ProjectResponseDto
+                Data = projects.Select(x => new ProjectResponseDto
                 {
+
                     Id = x.Id,
                     Name = x.Name,
                     StartDate = x.StartDate,
                     CompletionDate = x.CompletionDate,
                     ProjectStatus = x.ProjectStatus,
                     ProjectPriority = x.ProjectPriority,
+                    UserIds = projectsCount.SingleOrDefault(y => y.Id == x.Id)!.Users.Select(y => y.UserId).ToList(),
                     Tasks = _unitOfWork.Repository<TaskModel>().Where(y => y.ProjectId == x.Id).Select(t => new TaskSummaryDto
                     {
                         Id = t.Id,
@@ -288,6 +291,22 @@ namespace BusinessLogic.BAL.Services
                 {
                     throw new EntityNotFoundException(nameof(ProjectResponseDto), id);
                 }
+
+                var usersAlreadyOnProject = _unitOfWork.Repository<ProjectUsers>().Where(x => x.ProjectId == row.Id);
+                usersAlreadyOnProject.ForEach(x =>
+                {
+                    _unitOfWork.Repository<ProjectUsers>().Delete(x);
+                });
+
+                foreach (var u in project.UserIds)
+                {
+                    await _unitOfWork.Repository<ProjectUsers>().InsertAsync(new ProjectUsers
+                    {
+                        ProjectId = row.Id,
+                        UserId = u
+                    });
+                }
+
                 row.Name = project.Name;
                 row.ProjectStatus = project.ProjectStatus;
                 row.ProjectPriority = project.ProjectPriority ?? row.ProjectPriority;

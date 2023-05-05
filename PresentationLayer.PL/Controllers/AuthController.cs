@@ -1,4 +1,5 @@
 ﻿using DataAccess.DAL;
+using Domain.Dto;
 using Domain.Dto.Auth;
 using Domain.Dto.Auth.Responses;
 using Domain.Dto.V1.Request;
@@ -47,6 +48,13 @@ namespace PresentationLayer.PL.Controllers
             var response = await _service.RefreshTokenAsync(dto);
 
             return response.IsSuccess ? Ok(new AuthSuccessResponse { AccessToken = response.Token, RefreshToken = response.RefreshToken }) : BadRequest(new AuthBadResponse { Error = response.Errors.ToArray() });
+        }
+        [HttpGet("users")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthSuccessResponse))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Users([FromServices] TaskContext context)
+        {
+            return Ok(context.Users.Select(x => new UserDto { Id = x.Id, UserName = x.UserName }).ToList());
         }
     }
 }

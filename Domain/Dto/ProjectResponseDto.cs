@@ -18,5 +18,6 @@ namespace Domain.Dto
         public Priority? ProjectPriority { get; init; }
         public string? FileURI { get; init; }
         public List<TaskSummaryDto>? Tasks { get; init; } = new();
+        public List<int> UserIds { get; init; } = new();
     }
 }

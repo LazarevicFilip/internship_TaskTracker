@@ -41,7 +41,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProjectResponseDto))]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Create([FromForm] ProjectRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] ProjectRequestDto dto)
         {
            var project = await _service.InsertAsync(dto);
            return CreatedAtAction(nameof(GetOneProject), new { id = project.Id, }, project);
@@ -51,7 +51,7 @@ namespace PresentationLayer.PL.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromForm] UpdateProjectRequestDto dto, int id)
+        public async Task<IActionResult> Update([FromBody] UpdateProjectRequestDto dto, int id)
         {
             await _service.UpdateAsync(dto, id);
             return NoContent();
