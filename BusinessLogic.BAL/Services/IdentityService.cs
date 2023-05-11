@@ -90,6 +90,14 @@ namespace BusinessLogic.BAL.Services
                 };
                 await _unitOfWork.Repository<User>().InsertAsync(user);
 
+                if(dto.ProjectIds != null)
+                {
+                    foreach (var id in dto.ProjectIds)
+                    {
+                        await _unitOfWork.Repository<ProjectUsers>().InsertAsync(new ProjectUsers { ProjectId = id, User = user });
+                    }
+                }
+
                 await _unitOfWork.Save();
 
                 return await GenerateAutheticateResultForUserAsync(user);
